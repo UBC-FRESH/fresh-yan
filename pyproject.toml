@@ -7,7 +7,7 @@ name = "fresh-yan"
 version = "0.0.1"
 description = "Open, reproducible code, data, and results for the CJFR manuscript on HWP half-life and displacement uncertainty in forest sector carbon trade-offs (TSA 24, British Columbia)"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "UBC FRESH Lab" }]

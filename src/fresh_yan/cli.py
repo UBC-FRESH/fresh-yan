@@ -25,6 +25,17 @@ def no_harvest(
 
 
 @app.command()
+def base_scenario(
+    out_dir: str = typer.Option("results/base_scenario", help="Output directory for records."),
+    solver: str = typer.Option("highs", help="LP solver backend (highs or gurobi)."),
+) -> None:
+    """Regenerate the base scenario records (max even-flow harvest volume)."""
+    from .base_scenario import generate
+
+    generate(out_dir, solver=solver)
+
+
+@app.command()
 def version() -> None:
     """Print package and key dependency versions."""
     import libcbm

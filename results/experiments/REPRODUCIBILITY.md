@@ -24,6 +24,25 @@ Artifacts:
 The values reproduce the legacy `msc_walter_yan` committed outputs exactly (verified
 2026-10-11); the records here add provenance columns and a tidy summary layout.
 
+## Base scenario (`results/base_scenario/`)
+
+Maximize even-flow harvest volume over the 200-year horizon (5% period-over-period
+variation limits on harvested area and volume; the harvest action is flagged for
+`cmp_c_z`). Regenerate:
+
+```bash
+fresh-yan base-scenario --solver highs
+```
+
+Artifacts: `base_scenario.csv` (per-period harvested area `oha`, harvested volume
+`ohv`, growing stock `ogs`, ecosystem carbon `ocp`, emissions `ocf`; provenance columns
+include the `solver`) and `base_scenario.pdf` (four-panel figure).
+
+Solver note: HiGHS (open source, default) and Gurobi produce the same solution to
+~1e-7; the manuscript's reported ranges (harvest area 369,000-408,000 ha/period;
+harvest volume 7.45-8.23 x 10^7 m3/period; growing stock decreasing) reproduce with
+either.
+
 ## Environment (validated 2026-10-11)
 
 - Python 3.12.3

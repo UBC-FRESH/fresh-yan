@@ -3,8 +3,8 @@
 | Phase | Scope | Status |
 |---|---|---|
 | P1 | Scaffold: repo, package skeleton, CLI, CI, inputs (`data/`, `curves/`) | done (2026-10-11) |
-| P2 | Records: no-harvest comparison (done); base max even-flow harvest scenario | in progress |
-| P3 | Records: trade-off grid (bi-objective loop over half-life x displacement) | planned |
+| P2 | Records: no-harvest comparison; base max even-flow harvest scenario | done (2026-10-11) |
+| P3 | Records: trade-off grid (bi-objective loop over half-life x displacement) | next |
 | P4 | Records: sensitivity grid (3D-map inputs) + analysis scripts | planned |
 | P5 | `supplementary/` tree + manuscript figure/table builders (one command each) | planned |
 | P6 | Release `v0.1.0` + Zenodo DOI + manuscript availability statement | planned |

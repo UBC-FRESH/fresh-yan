@@ -43,9 +43,11 @@ def provenance() -> dict[str, str]:
     }
 
 
-def with_provenance(df: pd.DataFrame) -> pd.DataFrame:
-    """Return a copy of ``df`` with provenance columns appended."""
+def with_provenance(df: pd.DataFrame, **extra: str) -> pd.DataFrame:
+    """Return a copy of ``df`` with provenance columns appended (plus ``extra``)."""
     out = df.copy()
-    for key, value in provenance().items():
+    fields = provenance()
+    fields.update(extra)
+    for key, value in fields.items():
         out[key] = value
     return out
