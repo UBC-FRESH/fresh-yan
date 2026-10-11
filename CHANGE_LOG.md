@@ -1,3 +1,19 @@
+# 2026-10-11 — FreshForge pipeline, record fixes, and validation notes (#1)
+
+- Added `src/fresh_yan/providers.py`: a FreshForge provider (entry point
+  `freshforge.providers` -> `fresh_yan.pipeline`) exposing `generate_curves`,
+  `no_harvest`, `base_scenario`, `trade_off_grid`, and `sensitivity_figures` nodes, so
+  the full modelling pipeline runs as a reproducible FreshForge workflow
+  (`workflows/pipeline.yaml`; record-only regeneration in `workflows/records.yaml`;
+  per-case grid expansion example in `workflows/tradeoff_matrix.yaml`). The no-harvest
+  and base-scenario records were regenerated through the workflow.
+- Fixed the base scenario records: the carbon columns (`ocp`/`ocf`) were silently zero
+  because the curves were never plugged into the model in `base_scenario.generate`.
+- Added `tests/test_accounting.py` (telescoped conservation identity, no-harvest path
+  coefficient, half-life monotonicity) and a cohort-level validation note in
+  `planning/curve-generation-and-reset-findings.md` (biomass exact vs libCBM; DOM
+  residual documented).
+
 # 2026-10-11 — HWP allocation corrected to the manuscript's 50/50 split (#1)
 
 - The legacy loop silently used a single solid-wood product type
