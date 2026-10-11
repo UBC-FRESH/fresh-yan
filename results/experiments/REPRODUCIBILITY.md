@@ -40,8 +40,10 @@ Artifacts:
 - `no_harvest_pct_diff_summary.csv` — mean absolute percent difference per metric
 - `no_harvest_carbon_stock_whole_st.pdf`, `no_harvest_carbon_dynamics_individual_st.pdf`
 
-The values reproduce the legacy `msc_walter_yan` committed outputs exactly (verified
-2026-10-11); the records here add provenance columns and a tidy summary layout.
+Biomass stocks reproduce the legacy `msc_walter_yan` committed outputs exactly; the
+ws3-side DOM and ecosystem stocks differ by up to about 0.5% under the currently pinned
+ws3 (the curve inputs are identical), with correspondingly small changes in net
+emission. The records here add provenance columns and a tidy summary layout.
 
 ## Base scenario (`results/base_scenario/`)
 
