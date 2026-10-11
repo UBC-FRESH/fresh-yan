@@ -111,8 +111,8 @@ def cmp_c_ce_v2(fm: Any, path: Any, half_life_solid_wood: float,
 
 def _period_inflows(fm: Any, util_rate: float, proportion_solid_wood: float):
     """Per-period (solid, paper) HWP inflows (tC) from the applied schedule."""
-    solid: dict[int, float] = {p: 0.0 for p in fm.periods}
-    paper: dict[int, float] = {p: 0.0 for p in fm.periods}
+    solid: dict[int, float] = dict.fromkeys(fm.periods, 0.0)
+    paper: dict[int, float] = dict.fromkeys(fm.periods, 0.0)
     for dtk, age, _area, acode, period, *_ in fm.compile_schedule():
         if acode == "harvest":
             solid_in, paper_in = _hwp_inflows(fm, period, dtk, age, util_rate,

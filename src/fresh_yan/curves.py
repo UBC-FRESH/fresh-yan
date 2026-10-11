@@ -60,7 +60,7 @@ def _single_stand_inventory(sit_tables, dtype_key, age=1, area=1.0,
     inv = sit_tables["sit_inventory"]
     theme_cols = [c for c in inv.columns if c.startswith("theme")]
     mask = True
-    for c, v in zip(theme_cols, dtype_key):
+    for c, v in zip(theme_cols, dtype_key, strict=False):
         mask = mask & (inv[c].astype(str) == str(v))
     sub = inv[mask].iloc[[0]].copy()
     sub["age"] = age
@@ -94,9 +94,11 @@ def _clearcut_event(events, inventory_row, year, area=1.0):
 
 def _summarize(out):
     pi = out.classifiers.to_pandas().merge(
-        out.pools.to_pandas(), left_on=["identifier", "timestep"], right_on=["identifier", "timestep"])
+        out.pools.to_pandas(), left_on=["identifier", "timestep"],
+        right_on=["identifier", "timestep"])
     fi = out.classifiers.to_pandas().merge(
-        out.flux.to_pandas(), left_on=["identifier", "timestep"], right_on=["identifier", "timestep"])
+        out.flux.to_pandas(), left_on=["identifier", "timestep"],
+        right_on=["identifier", "timestep"])
     pi = pi.set_index("timestep")
     fi = fi.set_index("timestep")
     pi["ecosystem"] = pi[ecosystem_pools].sum(axis=1)
@@ -159,7 +161,6 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
         else:
             n_rot = 5
             inv_managed = inv.copy()
-            theme_cols = [c for c in inv.columns if c.startswith("theme")]
             inv_managed.iloc[0, inv_managed.columns.get_loc("theme4")] = key[4]
             for i in range(1, n_rot + 1):
                 # first cut: natural stand; later cuts: managed stand (theme4 differs)
@@ -175,7 +176,7 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
         merch = pre["SoftwoodMerch"] + pre["HardwoodMerch"]
         print(f"  managed {key} (from {parent}): pre eco={pre['ecosystem']:.2f} "
               f"merch={merch:.2f} post eco={post['ecosystem']:.2f} "
-              f"drop={pre['ecosystem']-post['ecosystem']:.2f}", flush=True)
+              f"drop={pre['ecosystem'] - post['ecosystem']:.2f}", flush=True)
         # re-index the post-clearcut trajectory to curve age
         pi2 = pi.loc[cut_at:cut_at + n_steps].copy()
         pi2.index = pi2.index - cut_at
