@@ -39,6 +39,39 @@ products-only HWP ledger split 50/50 (manuscript methods), and exact per-period 
 The trade-off/sensitivity records therefore do **not** reproduce the published numbers by
 design; see `planning/curve-generation-and-reset-findings.md`.
 
+## Draft methods text (corrected curves and accounting)
+
+Replacement for the carbon-yield-curve paragraph (manuscript line 257) and additions for
+the limitation, to apply in the post-grid manuscript pass:
+
+> Carbon yield curves were created following \citep{neilson2008optimal}, integrating
+> carbon into the \ac{SFMM} alongside the timber yield curves. Forest carbon was modelled
+> with libCBM, the open-source implementation of \ac{CBM-CFS3} \citep{KURZ2009480},
+> across 21 carbon pools (10 biomass and 11 \ac{DOM}) and 52 carbon fluxes. For each
+> analysis unit, a one-hectare stand was simulated on its natural trajectory to the
+> model's typical harvest age (120 years; the area-weighted median harvest age measured
+> under the even-flow scenarios), at which point a clearcut harvest event transferred the
+> carbon pools according to CBM's disturbance matrix (merchantable carbon removed;
+> slash and dead roots to the dead organic matter pools) and the stand regrew on its
+> managed yield curve. Repeating the harvest at the rotation age until the dead organic
+> matter pools reached their cycle equilibrium, and extracting the post-harvest
+> trajectory, yielded the managed carbon yield curves; the natural curves are the
+> no-management trajectories. The projections were aggregated into biomass,
+> merchantable, \ac{DOM}, and ecosystem stock curves and one net emission flux curve.
+>
+> Dead organic matter initialization in \ac{CBM} is known to produce upward-biased
+> initial pools (deterministic disturbance-interval spin-up relative to stochastic
+> disturbance; \citealp{boisvenue2022managing, metsaranta2017} and systematic
+> initialization errors in \citealp{oberpriller2021}), and the post-harvest reset
+> inherits that bias. This study therefore generates the managed curves by simulating
+> the harvest itself, so that post-harvest carbon states are conservation-consistent
+> with the harvested stand's pre-harvest state; the residual difference between
+> first-rotation and steady-state harvest histories is about 1% of landscape carbon.
+
+Also to state in the methods: the accounting is a stock-difference formulation
+(`E_sys(t) = [E(t)-E(t+1)] + [H(t)-H(t+1)] - sub(t)`, exact carbon conservation) with a
+products-only HWP ledger and the manuscript's 50/50 paper/solid-wood split.
+
 ## Open questions for the authors
 
 1. **Trade-off curves (Fig. 12).** The curve labels are (displacement factor, half-life)
