@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fresh-yan"
+version = "0.0.1"
+description = "Open, reproducible code, data, and results for the CJFR manuscript on HWP half-life and displacement uncertainty in forest sector carbon trade-offs (TSA 24, British Columbia)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "UBC FRESH Lab" }]
+keywords = [
+  "forestry",
+  "carbon",
+  "harvested wood products",
+  "optimization",
+  "reproducibility",
+  "ws3",
+  "libcbm",
+]
+dependencies = [
+  "numpy==2.5.4",
+  "pandas==3.0.6",
+  "scipy==1.18.1",
+  "matplotlib==3.11.2",
+  "geopandas==1.2.0",
+  "rasterio==1.5.2",
+  "fiona==1.10.1",
+  "profilehooks==1.13.0",
+  "dill==0.4.1",
+  "highspy==1.15.1",
+  "pyyaml==6.0.3",
+  "numba==0.68.0",
+  "numexpr==2.14.2",
+  "mock==5.2.0",
+  "openpyxl==3.1.5",
+  "libcbm==2.10.2",
+  "ws3 @ git+https://github.com/UBC-FRESH/ws3.git@a267f02",
+  "typer>=0.12",
+  "rich>=13",
+]
+
+[project.optional-dependencies]
+solvers = ["gurobipy>=13", "pulp>=4"]
+dev = [
+  "build>=1.2",
+  "pytest>=8",
+  "ruff>=0.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/UBC-FRESH/fresh-yan"
+Repository = "https://github.com/UBC-FRESH/fresh-yan"
+Issues = "https://github.com/UBC-FRESH/fresh-yan/issues"
+Changelog = "https://github.com/UBC-FRESH/fresh-yan/blob/main/CHANGE_LOG.md"
+
+[project.scripts]
+fresh-yan = "fresh_yan.cli:app"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "RUF"]

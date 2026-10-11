@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Local working area
+tmp/
+
+# Notebook and tool caches
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# OS
+.DS_Store
+
+# Regenerable per-cell intermediates (records themselves are tracked)
+results/**/work/
