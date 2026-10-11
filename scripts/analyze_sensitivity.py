@@ -56,7 +56,7 @@ def main() -> None:
     ax.set_yticks(np.arange(0, 2.5, 0.2))
     ax.view_init(elev=30, azim=-60)
     fig.colorbar(surf, shrink=0.5, aspect=5)
-    fig.savefig(os.path.join(args.out_dir, "3d_sensitivity.pdf"), bbox_inches="tight")
+    fig.savefig(os.path.join(args.out_dir, "3d.pdf"), bbox_inches="tight")
     plt.close(fig)
 
     # Orthographic views
