@@ -68,6 +68,10 @@ the limitation, to apply in the post-grid manuscript pass:
 > with the harvested stand's pre-harvest state; the residual difference between
 > first-rotation and steady-state harvest histories is about 1% of landscape carbon.
 
+Two new bib entries are needed for the caveat (Metsaranta et al. 2017; Oberpriller et
+al. 2021); `boisvenue2022managing` is already in `reference.bib`. The CJFR reference cap
+is 50 (currently 40).
+
 Also to state in the methods: the accounting is a stock-difference formulation
 (`E_sys(t) = [E(t)-E(t+1)] + [H(t)-H(t+1)] - sub(t)`, exact carbon conservation) with a
 products-only HWP ledger and the manuscript's 50/50 paper/solid-wood split.
