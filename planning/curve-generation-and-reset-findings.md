@@ -1,6 +1,6 @@
 # Harvest-consistent carbon yield curves: findings and method (2026-10-11)
 
-Status: implementation complete for the curve generator; accounting rework + grid pending.
+Status: complete (curves, corrected accounting, grid, and independent verification; see the Update sections below).
 
 ## The defect: post-harvest reset applies a spun-up age-0 state
 
@@ -56,13 +56,19 @@ Aggregate phantom carbon over the actual schedules (Σ area × reset error):
 
 | schedule | committed (spun-up) | single | cycle |
 |---|---|---|---|
-| base scenario (7.7 Mha) | **+96.6 MtC** | +33.1 | **+0.7** |
-| trade-off df=1.5 hl=100 (7.5 Mha) | **+82.5 MtC** | +20.6 | **−10.5** |
+| base scenario (7.7 Mha) | **+96.6 MtC** | +33.1 | **+1.35** |
+| trade-off df=1.5 hl=100 | **+82.5 MtC** | +20.6 | **+0.57** |
 
-The cycle variant removes ~99% of the aggregate artifact; residual is the first-harvest
-vs repeat-harvest inconsistency (a single managed curve cannot represent all harvest
-histories). Optional refinement: age-class transition routing (ws3 transitions are
-age-keyed; SIT transitions carry age bounds) — multiplies managed dtypes.
+The committed/single columns were computed on the legacy (pre-50/50) schedules; the
+cycle column is updated to the current schedules (verified 2026-10-11). Current spot
+scenarios on the corrected (v2, 50/50) schedules (net phantom, MtC): (100, 1.5) +0.57 ·
+(100, 2.4) −9.55 · (200, 2.4) −20.19 (1.63% of landscape C) · (2, 2.4) +3.95. The net
+aggregate artifact falls ~70x (base +96.6 -> +1.35 MtC); the residual is the
+first-harvest vs repeat-harvest inconsistency (a single managed curve cannot represent
+all harvest histories), with cohort-level residuals up to ±44 tC/ha at off-rotation ages
+that largely cancel in aggregate. Optional refinement: age-class transition routing
+(ws3 transitions are age-keyed; SIT transitions carry age bounds) — multiplies managed
+dtypes.
 
 ## ws3 → libCBM bridge notes (for the direct-run validation)
 
@@ -77,12 +83,12 @@ age-keyed; SIT transitions carry age bounds) — multiplies managed dtypes.
 ## Open items
 
 - Landscape-level validation (curve accounting vs direct CBM run with cohort-exact
-  events) — in progress.
-- Corrected (v2) accounting implementation: stock-difference objective + products-only
-  HWP ledger (`planning/experiment-design.md`).
-- Re-run the trade-off grid on the corrected curves + accounting; re-derive results.
-- Update the design note and the manuscript methods (curve generation; DOM
-  initialization caveat with citations).
+  events) — in progress (first-harvest cohort validation is exact; the managed-stand
+  age offset is still open).
+- Update the design note and the manuscript methods (curve generation; merch-based HWP
+  inflow vs Eq. 10; exact 2**(-10/hl) vs Eq. 12; inflow-based substitution vs Eq. 18;
+  utilized-volume naming; DOM initialization caveat with citations; the reset-residual
+  bound — worst spot −20.19 MtC = 1.63% of landscape C).
 
 ## Cohort-level validation vs a direct libCBM simulation
 
@@ -115,5 +121,11 @@ CBM timestep 10p+1):
 - The corrected accounting + 50/50 split shifts the trade-off: harvest rises smoothly
   with displacement (129k ha at df=0, 207k at df=0.5 -- both at hl=200; 1.42M ha at
   df=1.0, 2.59M at df=2.0, 3.39M at df=2.4 -- hl=100/50). The abrupt "cliff" of the
-  published result does not appear in these spot checks; the full grid will show the
-  corrected surface.
+  published result does not appear in these spot checks. The full grid (2026-10-11)
+  confirms: utilized harvest volume rises monotonically with displacement at every
+  half-life; the steep transition band sits around df ~0.6-1.2 (top adjacent jumps
+  252-261 x 10^6 m3); the surface is smooth/nonlinear, slightly non-monotone in
+  half-life; range 72,684 -> 1,223,841,156 m3. Independent verification (adversarial
+  audit + post-run checks): LP objective == -(tracker total) to ~1e-15 relative; 5,000
+  rows, no NaN, provenance complete; spot cells exact (hl=100/df=1.5: 530,250,376.82
+  m3, -1,586,066,278.9708 tCO2).

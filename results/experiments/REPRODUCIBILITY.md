@@ -81,7 +81,10 @@ telescoped conservation identity closes to zero. The published experiments used 
 legacy flux-based accounting on the spun-up curves (start-of-period inventory values);
 those results do not reproduce here by design -- see
 `planning/curve-generation-and-reset-findings.md` for the corrected trade-off behavior
-and the residual (~1% of landscape carbon).
+and the residual (~1% of landscape carbon). Verified 2026-10-11 (independent audit +
+post-run checks): 5,000 rows, 25 x 200 unique, no NaN/inf; LP objective == -(tracker
+total) spot cells exact (e.g. hl=100/df=1.5: 530,250,376.82 m3 utilized volume,
+-1,586,066,278.9708 tCO2); worst net reset residual -20.19 MtC (1.63% of landscape C).
 
 ## Environment (validated 2026-10-11)
 

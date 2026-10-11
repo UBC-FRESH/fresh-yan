@@ -1,3 +1,25 @@
+# 2026-10-11 — Corrected trade-off grid records + adversarial audit (#1)
+
+- Generated the full corrected trade-off grid: 5,000 scenarios (25 displacement
+  factors x 200 solid-wood half-lives), emission-minimizing LP on the v2 accounting and
+  rotation-cycle curves; HiGHS, 48 workers, 2 h 46 min. Records in
+  `results/tradeoff_grid/` (harvest/stock/emission trajectories + summary, provenance
+  on all files); sensitivity figures regenerated (`results/sensitivity/3d.pdf`,
+  `xyz.pdf`; the 3D filename now matches the manuscript and pipeline artifact).
+- Pre-run adversarial audit (independent agent) of the corrected accounting: PASS — no
+  counterexample. LP objective == -(tracker total) to ~2e-15 relative on all spot
+  scenarios (target 1,586,066,278.97 reproduced exactly; 119/119 per-path coefficients
+  of a real tract match an independent telescoping); DOM inside the ecosystem term;
+  exact 2**(-10/hl); 50/50 split with inflow-only substitution; boundary scenarios
+  (hl 1/2/200 x df 0/2.4) all optimal and finite. Post-run checks: 5,000 rows,
+  25 x 200 unique, no NaN/inf; spot cells match to float precision (hl=100/df=1.5:
+  530,250,376.82 m3 utilized volume, -1,586,066,278.9708 tCO2).
+- Audit follow-ups: added the LP-integration test for the z <-> tracker invariant
+  (`tests/test_accounting.py`); provenance helpers now run git from the repository root
+  and flag `src/`, `curves/`, and `data/` changes; lint clean; planning docs updated
+  with the current reset-residual numbers (base +1.35 MtC; worst spot -20.19 MtC =
+  1.63% of landscape C).
+
 # 2026-10-11 — FreshForge pipeline, record fixes, and validation notes (#1)
 
 - Added `src/fresh_yan/providers.py`: a FreshForge provider (entry point
@@ -34,7 +56,8 @@
   curve. The official curves in `curves/` use the rotation-cycle equilibrium
   (`mode='cycle'`); `merch` (merchantable-stem carbon) is added as the HWP inflow source.
   Aggregate phantom carbon (reset error x harvested area) over the base-scenario
-  schedule: +96.6 MtC with the old spun-up curves, +0.7 MtC with the cycle curves.
+  schedule: +96.6 MtC with the old spun-up curves, +1.35 MtC with the cycle curves
+  (updated 2026-10-11 on the regenerated base records).
 - **Corrected (v2) accounting** (`src/fresh_yan/accounting.py`): end-of-period
   stock-difference ecosystem term, products-only HWP ledger (inflow = curve merch x
   util_rate, survival = 2**(-10/hl)), substitution = df x inflow x credit. The LP
