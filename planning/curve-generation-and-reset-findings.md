@@ -84,6 +84,21 @@ age-keyed; SIT transitions carry age bounds) — multiplies managed dtypes.
 - Update the design note and the manuscript methods (curve generation; DOM
   initialization caveat with citations).
 
+## Cohort-level validation vs a direct libCBM simulation
+
+For the sample dtype (`tsa24 1 2402000 100 2402000`, harvested at model age 120) the
+curve-based trajectory was compared against a single-stand libCBM run harvesting the
+identical stand state (event age bound calibrated; alignment: model end-of-period p <->
+CBM timestep 10p+1):
+
+- **Biomass: exact agreement (0.00 tC/ha difference across all periods)** -- the
+  managed yield-curve regrowth reproduces CBM exactly.
+- **DOM/ecosystem: -11.05 tC/ha at 10 years post-harvest, converging to -4.19 at 200
+  years.** The residual is the documented first-harvest vs rotation-cycle difference
+  (the cycle curve's age-0 is 174.28 vs 185.03 for a first-rotation clearcut of a
+  natural stand at 120); it decays as the stands converge on the same trajectory.
+- Aggregate effect on real schedules: ~1% of landscape carbon (cycle variant).
+
 ## Update: official curves + corrected accounting (same day)
 
 - Official curves in `curves/` are the `cycle` variant (rotation age 120; `merch`
@@ -93,9 +108,12 @@ age-keyed; SIT transitions carry age bounds) — multiplies managed dtypes.
   survival = 2**(-10/hl); substitution = df x inflow x credit). Verified on a scenario:
   the LP objective equals exactly the negative of the reported tracker total (same
   accounting), and the telescoped conservation identity closes to 0.0.
-- The corrected accounting shifts the trade-off: the published (legacy-curve) result was
-  "no harvest at displacement < 0.6"; with the corrected curves + accounting the LP
-  harvests even at df = 0 (766k ha at hl=200; products storage alone beats retention for
-  long half-lives) and increases smoothly with df (1.73M ha at df=0.25, 2.38M ha at
-  df=0.5, 6.6M ha at df=2.0). The abrupt "cliff" of the published result does not appear
-  in these spot checks; the full grid will show the corrected surface.
+- HWP allocation follows the manuscript methods: utilized fibre split 50/50 between
+  paper (half-life 2 yr) and solid wood (grid half-life). The legacy loop silently used a
+  single solid-wood product type (proportion_solid_wood = 1.0), which contradicts the
+  methods and roughly doubles the substitution credit.
+- The corrected accounting + 50/50 split shifts the trade-off: harvest rises smoothly
+  with displacement (129k ha at df=0, 207k at df=0.5 -- both at hl=200; 1.42M ha at
+  df=1.0, 2.59M at df=2.0, 3.39M at df=2.4 -- hl=100/50). The abrupt "cliff" of the
+  published result does not appear in these spot checks; the full grid will show the
+  corrected surface.

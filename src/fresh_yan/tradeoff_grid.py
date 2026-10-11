@@ -26,8 +26,11 @@ from .model import build_model, load_curves, sum_fluxes, sum_pools
 from .records import with_provenance
 from .scenario import cmp_c_caa, compile_scenario
 
-# HWP parameters (legacy notebook cell 3): all harvested wood is treated as a single
-# solid-wood product type; paper half-life is irrelevant at proportion_solid_wood=1.0.
+# HWP parameters (manuscript methods): 85% utilization; utilized fibre split 50/50
+# between paper (half-life 2 yr) and solid wood products (grid half-life); solid-wood
+# displacement is the grid parameter, paper displacement is zero.
+HALF_LIFE_PAPER = 2
+PROPORTION_SOLID_WOOD = 0.5
 UTIL_RATE = 0.85
 CREDIT = 1.0
 
@@ -47,8 +50,11 @@ def build_problem(fm, half_life: float, displacement: float):
     """Build the emission-minimizing scenario problem (maximize negative net emissions)."""
     vexpr = f"totvol * {UTIL_RATE:0.2f}"
     coeff_funcs = {
-        "z": partial(cmp_c_ce_v2, half_life=half_life, util_rate=UTIL_RATE,
-                     displacement_factor=displacement, credit=CREDIT),
+        "z": partial(cmp_c_ce_v2, half_life_solid_wood=half_life,
+                     half_life_paper=HALF_LIFE_PAPER,
+                     proportion_solid_wood=PROPORTION_SOLID_WOOD,
+                     util_rate=UTIL_RATE, displacement_factor_solid=displacement,
+                     credit=CREDIT),
         "cflw_ha": partial(cmp_c_caa, expr="1.", acodes=["harvest"], mask=None),
         "cflw_hv": partial(cmp_c_caa, expr=vexpr, acodes=["harvest"], mask=None),
     }
@@ -80,8 +86,11 @@ def solve_scenario(fm, half_life: float, displacement: float, solver: str = "hig
                       fuzzy_age=False, recourse_enabled=False, verbose=False,
                       compile_c_ycomps=True)
     harvest = compile_scenario(fm)
-    stock = track_system_stock_v2(fm, half_life, UTIL_RATE)
-    emission = track_system_emission_v2(fm, half_life, UTIL_RATE, displacement, CREDIT)
+    stock = track_system_stock_v2(fm, half_life, HALF_LIFE_PAPER, PROPORTION_SOLID_WOOD,
+                                  UTIL_RATE)
+    emission = track_system_emission_v2(fm, half_life, HALF_LIFE_PAPER,
+                                        PROPORTION_SOLID_WOOD, UTIL_RATE, displacement,
+                                        CREDIT)
     plt.close("all")  # the legacy trackers plot as a side effect; keep memory flat
     return harvest, stock, emission
 
