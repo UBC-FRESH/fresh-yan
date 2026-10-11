@@ -166,7 +166,7 @@ class PipelineProvider:
                 return self._trade_off_grid(node, params, context)
             if node_type.id == "sensitivity_figures":
                 return self._sensitivity_figures(node, params, context)
-        except Exception as exc:  # noqa: BLE001 - report provider failures as diagnostics
+        except Exception as exc:  # report provider failures as diagnostics
             return ProviderRunResult(
                 status=RunStatus.FAILED,
                 diagnostics=(Diagnostic(
@@ -188,7 +188,9 @@ class PipelineProvider:
 
     # --- node implementations ---
 
-    def _generate_curves(self, node: Any, params: dict[str, Any], context: Any) -> ProviderRunResult:
+    def _generate_curves(
+        self, node: Any, params: dict[str, Any], context: Any
+    ) -> ProviderRunResult:
         from .curves import generate
 
         out_dir = context.resolve_path(params.get("out_dir", "curves"))
@@ -256,7 +258,9 @@ class PipelineProvider:
             },
         )
 
-    def _sensitivity_figures(self, node: Any, params: dict[str, Any], context: Any) -> ProviderRunResult:
+    def _sensitivity_figures(
+        self, node: Any, params: dict[str, Any], context: Any
+    ) -> ProviderRunResult:
         summary = context.resolve_path(params.get(
             "summary", "results/tradeoff_grid/tradeoff_grid_summary.csv"))
         out_dir = context.resolve_path(params.get("out_dir", "results/sensitivity"))

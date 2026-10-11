@@ -8,22 +8,25 @@ modified), ``fy_version``, ``ws3_version``, and ``libcbm_version``.
 from __future__ import annotations
 
 import subprocess
+from pathlib import Path
 
 import pandas as pd
 
 from . import __version__
 
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 def git_commit() -> str:
-    """Short git commit of the current checkout (``+dirty`` if ``src/`` is modified)."""
+    """Short git commit of the package checkout (``+dirty`` if code or inputs changed)."""
     try:
         commit = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
-            capture_output=True, text=True, check=True,
+            capture_output=True, text=True, check=True, cwd=_REPO_ROOT,
         ).stdout.strip()
         dirty = subprocess.run(
-            ["git", "status", "--porcelain", "src/"],
-            capture_output=True, text=True, check=True,
+            ["git", "status", "--porcelain", "src/", "curves/", "data/"],
+            capture_output=True, text=True, check=True, cwd=_REPO_ROOT,
         ).stdout.strip()
         return commit + ("+dirty" if dirty else "")
     except Exception:
