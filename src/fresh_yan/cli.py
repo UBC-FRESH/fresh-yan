@@ -55,6 +55,17 @@ def _parse_range(spec: str, kind: str) -> list:
 
 
 @app.command()
+def generate_curves(
+    out_dir: str = typer.Option("curves", help="Output directory for the curve pickles."),
+    n_steps: int = typer.Option(700, help="Curve length in years."),
+) -> None:
+    """Regenerate the carbon yield curves with corrected historical disturbance."""
+    from .curves import generate
+
+    generate(out_dir, n_steps=n_steps)
+
+
+@app.command()
 def trade_off_grid(
     out_dir: str = typer.Option("results/tradeoff_grid", help="Output directory for records."),
     displacements: str = typer.Option("0.0:0.1:2.4",
