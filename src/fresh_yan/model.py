@@ -7,7 +7,6 @@ legacy ``msc_walter_yan`` repository.
 from __future__ import annotations
 
 import pandas as pd
-
 import ws3.forest
 
 # --- Model parameters ---

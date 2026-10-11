@@ -9,16 +9,15 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
 import ws3.core
 
 
 def run_cbm(sit_config, sit_tables, n_steps):
     import inspect
-    from libcbm.input.sit import sit_reader
-    from libcbm.input.sit import sit_cbm_factory 
-    from libcbm.model.cbm.cbm_output import CBMOutput
+
+    from libcbm.input.sit import sit_cbm_factory, sit_reader
     from libcbm.model.cbm import cbm_simulator
+    from libcbm.model.cbm.cbm_output import CBMOutput
     sit_data = sit_reader.parse(sit_classifiers=sit_tables['sit_classifiers'],
                                 sit_disturbance_types=sit_tables['sit_disturbance_types'],
                                 sit_age_classes=sit_tables['sit_age_classes'],
@@ -32,9 +31,9 @@ def run_cbm(sit_config, sit_tables, n_steps):
     cbm_output = CBMOutput(classifier_map=sit.classifier_value_names,
                            disturbance_type_map=sit.disturbance_name_map)
     with sit_cbm_factory.initialize_cbm(sit) as cbm:
-        # Create a function to apply rule based disturbance events and transition rules based on the SIT input
+        # Apply rule-based disturbance events and transition rules from the SIT input
         rule_based_processor = sit_cbm_factory.create_sit_rule_based_processor(sit, cbm)
-        # The following line of code spins up the CBM inventory and runs it through 200 timesteps.
+        # Spin up the CBM inventory and run it through the requested timesteps.
         simulate_kwargs = {
             "n_steps": n_steps,
             "classifiers": classifiers,
@@ -56,9 +55,9 @@ def plugin_c_curves(fm, c_curves_p, c_curves_f, pools, fluxes):
     for dtype_key in fm.dtypes:
         dt = fm.dt(dtype_key)
         mask = ('?', '?', dtype_key[2], '?', dtype_key[4])
-        
-        for _mask, ytype, curves in fm.yields:
-            if _mask != mask: 
+
+        for _mask, _ytype, curves in fm.yields:
+            if _mask != mask:
                 continue  # Only proceed if the mask matches
 
             print('found match for mask', mask)
@@ -70,11 +69,11 @@ def plugin_c_curves(fm, c_curves_p, c_curves_f, pools, fluxes):
             # Register pool curves
             pool_data = c_curves_p.loc[' '.join(dtype_key)]
             for yname in pools:
-                if yname not in registered_curves[dtype_key]:  # Check if curve is already registered
-                    points = list(zip(pool_data.index.values, pool_data[yname]))
-                    curve = fm.register_curve(ws3.core.Curve(yname, 
-                                                             points=points, 
-                                                             type='a', 
+                if yname not in registered_curves[dtype_key]:  # skip if already registered
+                    points = list(zip(pool_data.index.values, pool_data[yname], strict=False))
+                    curve = fm.register_curve(ws3.core.Curve(yname,
+                                                             points=points,
+                                                             type='a',
                                                              is_volume=False,
                                                              xmax=fm.max_age,
                                                              period_length=fm.period_length))
@@ -87,11 +86,11 @@ def plugin_c_curves(fm, c_curves_p, c_curves_f, pools, fluxes):
             # Register flux curves
             flux_data = c_curves_f.loc[' '.join(dtype_key)]
             for yname in fluxes:
-                if yname not in registered_curves[dtype_key]:  # Check if curve is already registered
-                    points = list(zip(flux_data.index.values, flux_data[yname]))
-                    curve = fm.register_curve(ws3.core.Curve(yname, 
-                                                             points=points, 
-                                                             type='a', 
+                if yname not in registered_curves[dtype_key]:  # skip if already registered
+                    points = list(zip(flux_data.index.values, flux_data[yname], strict=False))
+                    curve = fm.register_curve(ws3.core.Curve(yname,
+                                                             points=points,
+                                                             type='a',
                                                              is_volume=False,
                                                              xmax=fm.max_age,
                                                              period_length=fm.period_length))
@@ -108,19 +107,19 @@ def compare_ws3_libcbm(
 ):
     eco_pools = biomass_pools + dom_pools
     pi = cbm_output.classifiers.to_pandas().merge(
-        cbm_output.pools.to_pandas(), 
-        left_on=["identifier", "timestep"], 
+        cbm_output.pools.to_pandas(),
+        left_on=["identifier", "timestep"],
         right_on=["identifier", "timestep"]
     )
     fi = cbm_output.classifiers.to_pandas().merge(
         cbm_output.flux.to_pandas(),
-        left_on=["identifier", "timestep"], 
+        left_on=["identifier", "timestep"],
         right_on=["identifier", "timestep"]
     )
 
     # Summarize CBM data
     df_cbm = pd.DataFrame({
-        'period': pi["timestep"] * 0.1, 
+        'period': pi["timestep"] * 0.1,
         'biomass_stock': pi[biomass_pools].sum(axis=1),
         'dom_stock': pi[dom_pools].sum(axis=1),
         'eco_stock': pi[eco_pools].sum(axis=1),
@@ -143,7 +142,7 @@ def compare_ws3_libcbm(
     # Plot
     if plots == "whole":
         # Create a single figure
-        fig = plt.figure(figsize=(10, 6))
+        _fig = plt.figure(figsize=(10, 6))
 
         # Ecosystem stock
         plt.plot(df_cbm['period'], df_cbm['eco_stock'], label='libcbm Ecosystem Stock')
@@ -167,7 +166,7 @@ def compare_ws3_libcbm(
 
     elif plots == "individual":
         # Create a figure with subplots
-        fig, axs = plt.subplots(4, 1, figsize=(10, 16))
+        _fig, axs = plt.subplots(4, 1, figsize=(10, 16))
         ticks = np.arange(df_cbm['period'].min() - 1, df_cbm['period'].max() + 1, 2)
 
         # 1) Ecosystem stock
@@ -212,7 +211,7 @@ def compare_ws3_libcbm(
     # Finally, show the figure
     plt.show()
 
-    return df_cbm, df_ws3   
+    return df_cbm, df_ws3
 
 
 ##############################################################

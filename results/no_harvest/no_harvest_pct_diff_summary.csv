@@ -1,0 +1,5 @@
+metric,mean_abs_pct_diff,fy_commit,fy_version,ws3_version,libcbm_version
+biomass_stock,2.4064932596055617,05926d7,0.0.1,1.1.0a5,2.10.2
+dom_stock,1.0987561095666907,05926d7,0.0.1,1.1.0a5,2.10.2
+eco_stock,1.0796000597177953,05926d7,0.0.1,1.1.0a5,2.10.2
+net_emission,24.08237724027476,05926d7,0.0.1,1.1.0a5,2.10.2
