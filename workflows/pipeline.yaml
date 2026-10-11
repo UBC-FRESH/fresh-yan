@@ -1,0 +1,85 @@
+workflow:
+  id: fresh_yan_pipeline
+  name: fresh-yan modelling pipeline
+  description: >-
+    Regenerate the full modelling pipeline: carbon yield curves (managed curves from
+    simulated clearcuts), the no-harvest comparison records, the base scenario records,
+    the trade-off grid, and the sensitivity figures. Run from the repository root:
+    freshforge run workflows/pipeline.yaml
+nodes:
+  - id: curves
+    provider: fresh_yan.pipeline.generate_curves
+    name: Carbon yield curves
+    parameters:
+      out_dir: curves
+      rotation_age: 120
+      n_steps: 700
+      mode: cycle
+    outputs:
+      curves_dir: curves
+    artifacts:
+      curves_p: curves/c_curves_p.pkl
+      curves_f: curves/c_curves_f.pkl
+    provenance:
+      method: simulated-clearcut managed curves (rotation-cycle equilibrium)
+      reference: planning/curve-generation-and-reset-findings.md
+  - id: no_harvest
+    provider: fresh_yan.pipeline.no_harvest
+    name: No-harvest comparison
+    needs:
+      - curves
+    parameters:
+      out_dir: results/no_harvest
+    outputs:
+      records_dir: results/no_harvest
+    artifacts:
+      cbm_csv: results/no_harvest/no_harvest_cbm.csv
+      ws3_csv: results/no_harvest/no_harvest_ws3.csv
+      pct_diff_csv: results/no_harvest/no_harvest_pct_diff.csv
+      summary_csv: results/no_harvest/no_harvest_pct_diff_summary.csv
+      figures: results/no_harvest/no_harvest_carbon_stock_whole_st.pdf
+  - id: base_scenario
+    provider: fresh_yan.pipeline.base_scenario
+    name: Base scenario (max even-flow harvest)
+    needs:
+      - curves
+    parameters:
+      out_dir: results/base_scenario
+      solver: highs
+    outputs:
+      records_dir: results/base_scenario
+    artifacts:
+      records_csv: results/base_scenario/base_scenario.csv
+      figure: results/base_scenario/base_scenario.pdf
+  - id: trade_off_grid
+    provider: fresh_yan.pipeline.trade_off_grid
+    name: Trade-off grid (half-life x displacement)
+    needs:
+      - curves
+    parameters:
+      out_dir: results/tradeoff_grid
+      workers: 48
+      solver: highs
+    outputs:
+      records_dir: results/tradeoff_grid
+    artifacts:
+      harvest_csv: results/tradeoff_grid/tradeoff_grid_harvest.csv
+      stock_csv: results/tradeoff_grid/tradeoff_grid_stock.csv
+      emission_csv: results/tradeoff_grid/tradeoff_grid_emission.csv
+      summary_csv: results/tradeoff_grid/tradeoff_grid_summary.csv
+    provenance:
+      accounting: corrected v2 (src/fresh_yan/accounting.py)
+      hwp_allocation: 50/50 paper/solid wood (manuscript methods)
+  - id: sensitivity_figures
+    provider: fresh_yan.pipeline.sensitivity_figures
+    name: Sensitivity figures
+    needs:
+      - trade_off_grid
+    parameters:
+      summary: results/tradeoff_grid/tradeoff_grid_summary.csv
+      out_dir: results/sensitivity
+    outputs:
+      figures_dir: results/sensitivity
+    artifacts:
+      3d_pdf: results/sensitivity/3d.pdf
+      xyz_pdf: results/sensitivity/xyz.pdf

@@ -1,0 +1,31 @@
+matrix:
+  id: fresh_yan_tradeoff_slice
+  name: Trade-off grid slice
+  description: >-
+    Example per-case expansion of the trade-off grid (a 3 x 3 slice; the full grid uses
+    the batch trade_off_grid node). Run from the repository root:
+    freshforge matrix run workflows/tradeoff_matrix.yaml
+  workflow_template: tradeoff_matrix_template.yaml
+axes:
+  - id: displacement
+    values:
+      - id: df_0p0
+        variables:
+          displacement: "0.0"
+      - id: df_1p0
+        variables:
+          displacement: "1.0"
+      - id: df_2p0
+        variables:
+          displacement: "2.0"
+  - id: half_life
+    values:
+      - id: hl_30
+        variables:
+          half_life: "30"
+      - id: hl_100
+        variables:
+          half_life: "100"
+      - id: hl_200
+        variables:
+          half_life: "200"

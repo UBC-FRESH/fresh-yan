@@ -1,0 +1,29 @@
+workflow:
+  id: fresh_yan_records
+  name: fresh-yan records (no-harvest + base scenario)
+  description: >-
+    Regenerate the no-harvest comparison and base scenario records against the carbon
+    yield curves currently in curves/. Use this after regenerating the curves; the full
+    pipeline (including curve generation and the trade-off grid) is workflows/pipeline.yaml.
+    Run from the repository root: freshforge run workflows/records.yaml
+nodes:
+  - id: no_harvest
+    provider: fresh_yan.pipeline.no_harvest
+    name: No-harvest comparison
+    parameters:
+      out_dir: results/no_harvest
+    artifacts:
+      cbm_csv: results/no_harvest/no_harvest_cbm.csv
+      ws3_csv: results/no_harvest/no_harvest_ws3.csv
+      pct_diff_csv: results/no_harvest/no_harvest_pct_diff.csv
+      summary_csv: results/no_harvest/no_harvest_pct_diff_summary.csv
+      figures: results/no_harvest/no_harvest_carbon_stock_whole_st.pdf
+  - id: base_scenario
+    provider: fresh_yan.pipeline.base_scenario
+    name: Base scenario (max even-flow harvest)
+    parameters:
+      out_dir: results/base_scenario
+      solver: highs
+    artifacts:
+      records_csv: results/base_scenario/base_scenario.csv
+      figure: results/base_scenario/base_scenario.pdf
