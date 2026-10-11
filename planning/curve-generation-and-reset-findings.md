@@ -83,3 +83,19 @@ age-keyed; SIT transitions carry age bounds) — multiplies managed dtypes.
 - Re-run the trade-off grid on the corrected curves + accounting; re-derive results.
 - Update the design note and the manuscript methods (curve generation; DOM
   initialization caveat with citations).
+
+## Update: official curves + corrected accounting (same day)
+
+- Official curves in `curves/` are the `cycle` variant (rotation age 120; `merch`
+  column added as the HWP inflow source).
+- `src/fresh_yan/accounting.py` implements the corrected (v2) accounting: end-of-period
+  stock differences, products-only HWP ledger (inflow = curve merch x util_rate;
+  survival = 2**(-10/hl); substitution = df x inflow x credit). Verified on a scenario:
+  the LP objective equals exactly the negative of the reported tracker total (same
+  accounting), and the telescoped conservation identity closes to 0.0.
+- The corrected accounting shifts the trade-off: the published (legacy-curve) result was
+  "no harvest at displacement < 0.6"; with the corrected curves + accounting the LP
+  harvests even at df = 0 (766k ha at hl=200; products storage alone beats retention for
+  long half-lives) and increases smoothly with df (1.73M ha at df=0.25, 2.38M ha at
+  df=0.5, 6.6M ha at df=2.0). The abrupt "cliff" of the published result does not appear
+  in these spot checks; the full grid will show the corrected surface.

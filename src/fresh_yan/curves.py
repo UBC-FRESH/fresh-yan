@@ -116,7 +116,7 @@ def _run_stand(sit_config, sit_tables, inventory_row, events, n_steps):
 
 
 def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
-             n_steps: int = N_STEPS, mode: str = "single") -> None:
+             n_steps: int = N_STEPS, mode: str = "cycle") -> None:
     """Generate carbon yield curves (pools + fluxes) for every model dtype.
 
     ``mode``: ``'single'`` (one clearcut) or ``'cycle'`` (repeated clearcuts at
@@ -189,6 +189,7 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
     c_curves_p["ecosystem"] = c_curves_p[ecosystem_pools].sum(axis=1)
     c_curves_p["biomass"] = c_curves_p[biomass_pools].sum(axis=1)
     c_curves_p["DOM"] = c_curves_p[dom_pools].sum(axis=1)
+    c_curves_p["merch"] = c_curves_p["SoftwoodMerch"] + c_curves_p["HardwoodMerch"]
     c_curves_f["total_emission"] = c_curves_f[total_emission].sum(axis=1)
     c_curves_f["gross_growth"] = c_curves_f[gross_growth].sum(axis=1)
     c_curves_f["net_emission"] = c_curves_f["total_emission"] - c_curves_f["gross_growth"]
@@ -201,4 +202,4 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
 
 
 if __name__ == "__main__":
-    generate(mode=sys.argv[1] if len(sys.argv) > 1 else "single")
+    generate(mode=sys.argv[1] if len(sys.argv) > 1 else "cycle")

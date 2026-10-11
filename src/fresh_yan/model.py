@@ -177,7 +177,7 @@ product_flux = [
 total_emission = decay_emissions_fluxes + disturbance_emissions_fluxes
 gross_growth = grossgrowth_ag + grossgrowth_bg
 
-sum_pools = ["ecosystem", "biomass", "DOM"]
+sum_pools = ["ecosystem", "biomass", "DOM", "merch"]
 sum_fluxes = ["total_emission", "gross_growth", "net_emission"]
 
 

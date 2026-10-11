@@ -78,7 +78,7 @@ def compile_scenario(fm):
     ohv = [fm.compile_product(period, 'totvol * 0.85', acode='harvest') for period in fm.periods]
     ogs = [fm.inventory(period, 'totvol') for period in fm.periods]
     ocp = [fm.inventory(period, 'ecosystem') for period in fm.periods]
-    ocf = [fm.inventory(period, 'total_emissions') for period in fm.periods]
+    ocf = [fm.inventory(period, 'total_emission') for period in fm.periods]
     data = {'period':fm.periods,
             'oha':oha,
             'ohv':ohv,

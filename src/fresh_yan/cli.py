@@ -58,11 +58,12 @@ def _parse_range(spec: str, kind: str) -> list:
 def generate_curves(
     out_dir: str = typer.Option("curves", help="Output directory for the curve pickles."),
     n_steps: int = typer.Option(700, help="Curve length in years."),
+    rotation_age: int = typer.Option(120, help="Simulated clearcut age for managed curves."),
 ) -> None:
-    """Regenerate the carbon yield curves with corrected historical disturbance."""
+    """Regenerate the carbon yield curves (managed curves from simulated clearcuts)."""
     from .curves import generate
 
-    generate(out_dir, n_steps=n_steps)
+    generate(out_dir, n_steps=n_steps, rotation_age=rotation_age)
 
 
 @app.command()

@@ -1,11 +1,13 @@
 """Trade-off grid records: emission-minimizing scenarios over (half-life, displacement).
 
 For each (displacement factor, solid-wood half-life) pair, solve the landscape LP that
-maximizes negative net system emissions (equivalently, minimizes net system emissions)
-with HWP first-order decay and substitution, under 5% even-flow constraints on harvested
-area and volume. Records per-period harvest, HWP stock, and emission trajectories plus a
-per-scenario summary (total harvested volume, total net system emission), matching the
-legacy ``minimize_emission_loop.ipynb`` experiment.
+minimizes net system emissions with HWP first-order decay and substitution, under 5%
+even-flow constraints on harvested area and volume. Records per-period harvest, HWP
+stock, and emission trajectories plus a per-scenario summary (total harvested volume,
+total net system emission), matching the legacy ``minimize_emission_loop.ipynb``
+experiment but on the corrected (v2) accounting: stock-difference ecosystem term,
+products-only HWP ledger, HWP inflow from the curve merchantable-carbon pool
+(``src/fresh_yan/accounting.py``).
 """
 
 from __future__ import annotations
@@ -18,16 +20,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import ws3.opt
 
+from .accounting import cmp_c_ce_v2, track_system_emission_v2, track_system_stock_v2
 from .cbm import plugin_c_curves
-from .hwp import cmp_c_ce, track_system_emission, track_system_stock
 from .model import build_model, load_curves, sum_fluxes, sum_pools
 from .records import with_provenance
 from .scenario import cmp_c_caa, compile_scenario
 
 # HWP parameters (legacy notebook cell 3): all harvested wood is treated as a single
-# solid-wood product type; paper half-life is fixed but irrelevant at this proportion.
-HALF_LIFE_PAPER = 2
-PROPORTION_SOLID_WOOD = 1.0
+# solid-wood product type; paper half-life is irrelevant at proportion_solid_wood=1.0.
 UTIL_RATE = 0.85
 CREDIT = 1.0
 
@@ -47,11 +47,8 @@ def build_problem(fm, half_life: float, displacement: float):
     """Build the emission-minimizing scenario problem (maximize negative net emissions)."""
     vexpr = f"totvol * {UTIL_RATE:0.2f}"
     coeff_funcs = {
-        "z": partial(cmp_c_ce, expr=vexpr, half_life_solid_wood=half_life,
-                     half_life_paper=HALF_LIFE_PAPER,
-                     proportion_solid_wood=PROPORTION_SOLID_WOOD,
-                     util_rate=UTIL_RATE, displacement_factor_solid=displacement,
-                     credit=CREDIT),
+        "z": partial(cmp_c_ce_v2, half_life=half_life, util_rate=UTIL_RATE,
+                     displacement_factor=displacement, credit=CREDIT),
         "cflw_ha": partial(cmp_c_caa, expr="1.", acodes=["harvest"], mask=None),
         "cflw_hv": partial(cmp_c_caa, expr=vexpr, acodes=["harvest"], mask=None),
     }
@@ -83,10 +80,8 @@ def solve_scenario(fm, half_life: float, displacement: float, solver: str = "hig
                       fuzzy_age=False, recourse_enabled=False, verbose=False,
                       compile_c_ycomps=True)
     harvest = compile_scenario(fm)
-    stock = track_system_stock(fm, half_life, HALF_LIFE_PAPER, PROPORTION_SOLID_WOOD,
-                               UTIL_RATE)
-    emission = track_system_emission(fm, half_life, HALF_LIFE_PAPER, PROPORTION_SOLID_WOOD,
-                                     UTIL_RATE, displacement, CREDIT)
+    stock = track_system_stock_v2(fm, half_life, UTIL_RATE)
+    emission = track_system_emission_v2(fm, half_life, UTIL_RATE, displacement, CREDIT)
     plt.close("all")  # the legacy trackers plot as a side effect; keep memory flat
     return harvest, stock, emission
 
