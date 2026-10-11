@@ -1,3 +1,25 @@
+# 2026-10-11 — Trade-off grid command and convention fix (P3)
+
+- Added `fresh-yan trade-off-grid` (`src/fresh_yan/tradeoff_grid.py`):
+  emission-minimizing scenarios over (displacement factor, solid-wood half-life) with HWP
+  decay and substitution, 5% even-flow constraints, parallel workers, and long-format
+  records (harvest/stock/emission trajectories + per-scenario summary) with provenance.
+- Added `src/fresh_yan/hwp.py` (HWP coefficient functions and trackers extracted from
+  `msc_walter_yan/util.py`).
+- **Convention fix (verified).** The legacy `cmp_c_ce` used
+  `fm.inventory(..., age=d['_age'])`, which under ws3 >= 1.0.5 (end-of-period inventory)
+  silently returns zero, dropping the ecosystem-emission term (full harvest everywhere).
+  The coefficient functions and trackers now compute the start-of-period values directly
+  (`_legacy_inventory_lookup` / `_legacy_inventory_total`), reproducing the published
+  experiments: verified against ws3 1.0.0 for (df=1.0, hl=30) -> 0.084e9 m3 and
+  (df=0.5, hl=200) -> 0.173e9 m3, matched exactly under current ws3. The natural
+  end-of-period adaptation (`age + period_length`) does not reproduce the published
+  numbers; see `planning/manuscript-handoff.md` for the evidence and the open author
+  decision.
+- Added `scripts/analyze_sensitivity.py` (3D + orthographic figures from the summary
+  record).
+- Added `planning/manuscript-handoff.md`: figure/table-to-record map and open questions.
+
 # 2026-10-11 — Base scenario records (P2)
 
 - Added `fresh-yan base-scenario` (`src/fresh_yan/base_scenario.py`): maximizes even-flow

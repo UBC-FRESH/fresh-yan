@@ -74,3 +74,8 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+# Faithful extraction of legacy research code (msc_walter_yan/util.py); long
+# docstring and comment lines are left as-is.
+"src/fresh_yan/hwp.py" = ["E501"]

@@ -43,6 +43,21 @@ Solver note: HiGHS (open source, default) and Gurobi produce the same solution t
 harvest volume 7.45-8.23 x 10^7 m3/period; growing stock decreasing) reproduce with
 either.
 
+## Trade-off grid (`results/tradeoff_grid/`)
+
+Emission-minimizing scenarios over the (displacement factor, solid-wood half-life) grid
+(the inputs for the 3D/orthographic sensitivity figures): per-period harvest, HWP stock,
+and emission trajectories plus a per-scenario summary. Regenerate:
+
+```bash
+fresh-yan trade-off-grid --workers 48
+```
+
+Convention note: the published experiments used ws3's pre-1.0.5 start-of-period inventory
+values; `fresh_yan.hwp` computes those directly so the published results reproduce on
+current ws3 (see `planning/manuscript-handoff.md` for the verification and the open
+author decision).
+
 ## Environment (validated 2026-10-11)
 
 - Python 3.12.3

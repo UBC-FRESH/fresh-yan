@@ -35,6 +35,43 @@ def base_scenario(
     generate(out_dir, solver=solver)
 
 
+def _parse_range(spec: str, kind: str) -> list:
+    """Parse 'start:stop' or 'start:step:stop' (inclusive)."""
+    parts = [p.strip() for p in spec.split(":")]
+    values = [int(p) for p in parts] if kind == "int" else [float(p) for p in parts]
+    if len(values) == 2:
+        start, stop = values
+        step = 1 if kind == "int" else 0.1
+    elif len(values) == 3:
+        start, step, stop = values
+    else:
+        raise typer.BadParameter(f"expected start:stop or start:step:stop, got '{spec}'")
+    out = []
+    value = start
+    while value <= stop + 1e-9:
+        out.append(round(value, 10))
+        value += step
+    return out
+
+
+@app.command()
+def trade_off_grid(
+    out_dir: str = typer.Option("results/tradeoff_grid", help="Output directory for records."),
+    displacements: str = typer.Option("0.0:0.1:2.4",
+                                      help="Displacement factors as start:step:stop."),
+    half_lives: str = typer.Option("1:200", help="Half-lives as start:stop or start:step:stop."),
+    workers: int = typer.Option(1, help="Parallel worker processes."),
+    solver: str = typer.Option("highs", help="LP solver backend (highs or gurobi)."),
+) -> None:
+    """Regenerate the trade-off grid records (emission-minimizing scenarios)."""
+    from .tradeoff_grid import generate
+
+    generate(out_dir,
+             displacements=_parse_range(displacements, "float"),
+             half_lives=_parse_range(half_lives, "int"),
+             workers=workers, solver=solver)
+
+
 @app.command()
 def version() -> None:
     """Print package and key dependency versions."""
