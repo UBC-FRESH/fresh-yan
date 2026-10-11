@@ -23,26 +23,21 @@ input needed).
 | Fig. 13 — 3D sensitivity map | `results/tradeoff_grid/tradeoff_grid_summary.csv` | `fresh-yan trade-off-grid` + `scripts/analyze_sensitivity.py` | PENDING |
 | Fig. 14 — orthographic views | same summary | same | PENDING |
 
-## Convention finding: the legacy loop code vs ws3 ≥ 1.0.5 (verified 2026-10-11)
+## Convention history (superseded by the corrected accounting)
 
 The legacy `minimize_emission_loop.ipynb` objective (`cmp_c_ce`) evaluated the ecosystem
 term as `fm.inventory(t, 'net_emission', age=d['_age'], dtype_keys=[d['_dtk']])`. Under
 ws3 ≥ 1.0.5 (end-of-period inventory reporting), that call returns **zero for every
 lookup** (909,980/909,980 observed during problem compilation), silently dropping the
-ecosystem-emission term; the reproduced scenario then harvests everywhere (1.55 × 10⁹ m³
-even at df = 0.5, hl = 200). Under ws3 1.0.0 the same code returns nonzero and reproduces
-the manuscript's behaviour (0.084 × 10⁹ m³ at df = 1.0, hl = 30; 0.173 × 10⁹ m³ at
-df = 0.5, hl = 200 — low harvest, consistent with the manuscript's description).
+ecosystem-emission term. The published numbers were reproduced under current ws3 by
+computing the start-of-period values directly (`fresh_yan.hwp`), and the natural
+end-of-period adaptation did not reproduce them either.
 
-The natural end-of-period adaptation (`age + period_length`) does **not** reproduce the
-published results (1.30 × 10⁹ / 1.33 × 10⁹ m³): the one-period shift moves the regime
-boundary. `fresh_yan.hwp` therefore computes the start-of-period values directly
-(`_legacy_inventory_lookup` / `_legacy_inventory_total`), which reproduces the published
-numbers exactly under current ws3 (verified).
-
-**Author decision:** keep reproducing the published (start-of-period) experiments, or
-regenerate the trade-off/sensitivity figures under the end-of-period convention and
-update the manuscript accordingly.
+Both are now superseded: the corrected (v2) accounting (`src/fresh_yan/accounting.py`)
+uses the standard end-of-period `inventory()` with the harvest-consistent curves, the
+products-only HWP ledger split 50/50 (manuscript methods), and exact per-period decay.
+The trade-off/sensitivity records therefore do **not** reproduce the published numbers by
+design; see `planning/curve-generation-and-reset-findings.md`.
 
 ## Open questions for the authors
 
@@ -53,11 +48,12 @@ update the manuscript accordingly.
    `msc_walter_yan` generates this figure. Options: recover the original generator
    (thesis/Overleaf) or reconstruct the sweep (needs the volume-target grid used). Any
    reconstruction must use the convention choice above.
-2. **HWP allocation in the sensitivity experiments.** The legacy loop sets
+2. **HWP allocation in the sensitivity experiments (resolved).** The legacy loop set
    `proportion_solid_wood = 1.0` ("all harvested wood is made into a single type of HWP
-   to simplify the experiment"), while the manuscript's Methods describe a 50/50
-   paper/solid-wood split. The grid records here follow the legacy loop (proportion 1.0);
-   confirm whether the manuscript's sensitivity section should state this simplification.
+   to simplify the experiment"), contradicting the manuscript's Methods ("the utilized
+   fibre was divided into two equal categories of HWPs: paper and solid wood products").
+   The corrected grid now follows the Methods: 50/50 split, paper half-life 2 yr,
+   solid-wood half-life = the grid parameter, substitution on the solid-wood inflow only.
 3. **Max-harvest carbon comparison (Figs. 10–11).** The legacy generator is in
    `generate_c_curves_tsa24.ipynb` cells 43–53 (compile events from the base scenario
    schedule, run libCBM, compare). Reconstruct as `fresh-yan max-harvest-carbon`.
