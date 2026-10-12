@@ -189,10 +189,12 @@ def build_model(
     period_length: int = PERIOD_LENGTH,
     max_age: int = MAX_AGE,
 ) -> ws3.forest.ForestModel:
-    """Build the TSA 24 ForestModel with no actions scheduled (no-harvest case).
+    """Build a forest-estate model with no actions scheduled (no-harvest case).
 
-    The Woodstock-format files for this project use stand ages in *years* (5..475),
-    so no ``convert_periods_to_years`` is needed.
+    Defaults are the TSA 24 model; other management units pass their own section stem
+    and directory (see :func:`model_paths`).  The Woodstock-format files for this
+    project use stand ages in *years* (5..475), so no ``convert_periods_to_years`` is
+    needed.
     """
     fm = ws3.forest.ForestModel(model_name=model_name,
                                 model_path=model_path,
@@ -210,6 +212,37 @@ def build_model(
     fm.reset_actions()
     fm.grow()
     return fm
+
+
+def model_paths(tsa: str = MODEL_NAME, model_name: str | None = None,
+                model_path: str | None = None) -> tuple[str, str]:
+    """Resolve ``(model_name, model_path)`` for a management unit.
+
+    The defaults reproduce the TSA 24 layout (``data/woodstock_model_files_tsa24``);
+    other TSAs follow the femic section-export naming (``tsa<code>.{lan,are,yld,act,trn}``),
+    so ``model_name`` defaults to the TSA label and ``model_path`` to
+    ``data/woodstock_model_files_<tsa>``.
+    """
+    return model_name or tsa, model_path or f"data/woodstock_model_files_{tsa}"
+
+
+def curves_dir_for(tsa: str = MODEL_NAME, curves_dir: str | None = None) -> str:
+    """Resolve the curve directory (legacy ``curves`` for TSA 24; ``curves/<tsa>`` otherwise)."""
+    return curves_dir or ("curves" if tsa == MODEL_NAME else f"curves/{tsa}")
+
+
+def record_dir_for(tsa: str = MODEL_NAME, folder: str = "",
+                   out_dir: str | None = None) -> str:
+    """Resolve a record directory.
+
+    TSA 24 keeps the legacy layout (``folder`` as given); other TSAs nest under
+    ``results/<tsa>/<record>``.  An explicit ``out_dir`` always wins.
+    """
+    if out_dir:
+        return out_dir
+    if tsa == MODEL_NAME:
+        return folder
+    return f"results/{tsa}/{folder.rsplit('/', 1)[-1]}"
 
 
 def disturbance_type_mapping(fm: ws3.forest.ForestModel) -> list[dict[str, str]]:

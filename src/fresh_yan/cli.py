@@ -13,26 +13,50 @@ app = typer.Typer(
     add_completion=False,
 )
 
+_DEFAULT_TSA = "tsa24"
+
 
 @app.command()
 def no_harvest(
-    out_dir: str = typer.Option("results/no_harvest", help="Output directory for records."),
+    out_dir: str | None = typer.Option(
+        None, help="Output directory for records (default: results/no_harvest)."),
+    tsa: str = typer.Option(_DEFAULT_TSA, help="Management unit label; sets the default "
+                                               "model path and record layout."),
+    model_name: str | None = typer.Option(
+        None, help="Woodstock section stem (default: the TSA label)."),
+    model_path: str | None = typer.Option(
+        None, help="Woodstock sections directory (default: data/woodstock_model_files_<tsa>)."),
+    curves_dir: str | None = typer.Option(
+        None, help="Curve directory (default: curves; curves/<tsa> for other TSAs)."),
 ) -> None:
     """Regenerate the no-harvest comparison records (ws3 vs libCBM)."""
+    from .model import record_dir_for
     from .noharvest import generate
 
-    generate(out_dir)
+    generate(record_dir_for(tsa, "results/no_harvest", out_dir), tsa=tsa,
+             model_name=model_name, model_path=model_path, curves_dir=curves_dir)
 
 
 @app.command()
 def base_scenario(
-    out_dir: str = typer.Option("results/base_scenario", help="Output directory for records."),
+    out_dir: str | None = typer.Option(
+        None, help="Output directory for records (default: results/base_scenario)."),
     solver: str = typer.Option("highs", help="LP solver backend (highs or gurobi)."),
+    tsa: str = typer.Option(_DEFAULT_TSA, help="Management unit label; sets the default "
+                                               "model path and record layout."),
+    model_name: str | None = typer.Option(
+        None, help="Woodstock section stem (default: the TSA label)."),
+    model_path: str | None = typer.Option(
+        None, help="Woodstock sections directory (default: data/woodstock_model_files_<tsa>)."),
+    curves_dir: str | None = typer.Option(
+        None, help="Curve directory (default: curves; curves/<tsa> for other TSAs)."),
 ) -> None:
     """Regenerate the base scenario records (max even-flow harvest volume)."""
     from .base_scenario import generate
+    from .model import record_dir_for
 
-    generate(out_dir, solver=solver)
+    generate(record_dir_for(tsa, "results/base_scenario", out_dir), solver=solver,
+             tsa=tsa, model_name=model_name, model_path=model_path, curves_dir=curves_dir)
 
 
 def _parse_range(spec: str, kind: str) -> list:
@@ -56,32 +80,53 @@ def _parse_range(spec: str, kind: str) -> list:
 
 @app.command()
 def generate_curves(
-    out_dir: str = typer.Option("curves", help="Output directory for the curve pickles."),
+    out_dir: str | None = typer.Option(
+        None, help="Output directory for the curve pickles (default: curves; "
+                   "curves/<tsa> for other TSAs)."),
     n_steps: int = typer.Option(700, help="Curve length in years."),
     rotation_age: int = typer.Option(120, help="Simulated clearcut age for managed curves."),
+    tsa: str = typer.Option(_DEFAULT_TSA, help="Management unit label; sets the default "
+                                               "model path."),
+    model_name: str | None = typer.Option(
+        None, help="Woodstock section stem (default: the TSA label)."),
+    model_path: str | None = typer.Option(
+        None, help="Woodstock sections directory (default: data/woodstock_model_files_<tsa>)."),
 ) -> None:
     """Regenerate the carbon yield curves (managed curves from simulated clearcuts)."""
     from .curves import generate
+    from .model import curves_dir_for
 
-    generate(out_dir, n_steps=n_steps, rotation_age=rotation_age)
+    generate(curves_dir_for(tsa, out_dir), n_steps=n_steps, rotation_age=rotation_age,
+             tsa=tsa, model_name=model_name, model_path=model_path)
 
 
 @app.command()
 def trade_off_grid(
-    out_dir: str = typer.Option("results/tradeoff_grid", help="Output directory for records."),
+    out_dir: str | None = typer.Option(
+        None, help="Output directory for records (default: results/tradeoff_grid)."),
     displacements: str = typer.Option("0.0:0.1:2.4",
                                       help="Displacement factors as start:step:stop."),
     half_lives: str = typer.Option("1:200", help="Half-lives as start:stop or start:step:stop."),
     workers: int = typer.Option(1, help="Parallel worker processes."),
     solver: str = typer.Option("highs", help="LP solver backend (highs or gurobi)."),
+    tsa: str = typer.Option(_DEFAULT_TSA, help="Management unit label; sets the default "
+                                               "model path and record layout."),
+    model_name: str | None = typer.Option(
+        None, help="Woodstock section stem (default: the TSA label)."),
+    model_path: str | None = typer.Option(
+        None, help="Woodstock sections directory (default: data/woodstock_model_files_<tsa>)."),
+    curves_dir: str | None = typer.Option(
+        None, help="Curve directory (default: curves; curves/<tsa> for other TSAs)."),
 ) -> None:
     """Regenerate the trade-off grid records (emission-minimizing scenarios)."""
+    from .model import record_dir_for
     from .tradeoff_grid import generate
 
-    generate(out_dir,
+    generate(record_dir_for(tsa, "results/tradeoff_grid", out_dir),
              displacements=_parse_range(displacements, "float"),
              half_lives=_parse_range(half_lives, "int"),
-             workers=workers, solver=solver)
+             workers=workers, solver=solver, tsa=tsa, model_name=model_name,
+             model_path=model_path, curves_dir=curves_dir)
 
 
 @app.command()

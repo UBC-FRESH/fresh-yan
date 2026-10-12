@@ -22,7 +22,7 @@ import ws3.opt
 
 from .accounting import cmp_c_ce_v2, track_system_emission_v2, track_system_stock_v2
 from .cbm import plugin_c_curves
-from .model import build_model, load_curves, sum_fluxes, sum_pools
+from .model import build_model, curves_dir_for, load_curves, model_paths, sum_fluxes, sum_pools
 from .records import with_provenance
 from .scenario import cmp_c_caa, compile_scenario
 
@@ -37,12 +37,16 @@ CREDIT = 1.0
 _FM = None  # per-worker ForestModel (initialized once per process)
 
 
-def _init_worker() -> None:
+def _init_worker(tsa: str = "tsa24", model_name: str | None = None,
+                 model_path: str | None = None, curves_dir: str | None = None) -> None:
     global _FM
-    _FM = build_model()
+    name, path = model_paths(tsa, model_name, model_path)
+    _FM = build_model(model_name=name, model_path=path)
     _FM.actions["harvest"].is_harvest = True
     # Plug in the carbon yield curves (legacy loop notebook cell 14)
-    c_curves_p, c_curves_f = load_curves()
+    curves_dir = curves_dir_for(tsa, curves_dir)
+    c_curves_p, c_curves_f = load_curves(os.path.join(curves_dir, "c_curves_p.pkl"),
+                                         os.path.join(curves_dir, "c_curves_f.pkl"))
     plugin_c_curves(_FM, c_curves_p, c_curves_f, sum_pools, sum_fluxes)
 
 
@@ -111,7 +115,9 @@ def _tag(df: pd.DataFrame, half_life: float, displacement: float) -> pd.DataFram
 def generate(out_dir: str = "results/tradeoff_grid",
              displacements: list[float] | None = None,
              half_lives: list[int] | None = None,
-             workers: int = 1, solver: str = "highs") -> None:
+             workers: int = 1, solver: str = "highs", tsa: str = "tsa24",
+             model_name: str | None = None, model_path: str | None = None,
+             curves_dir: str | None = None) -> None:
     """Generate the trade-off grid records (long-format CSVs + summary)."""
     if displacements is None:
         displacements = [round(i * 0.1, 1) for i in range(25)]  # 0.0 .. 2.4
@@ -137,13 +143,16 @@ def generate(out_dir: str = "results/tradeoff_grid",
         if done % 50 == 0 or done == len(pairs):
             print(f"  {done}/{len(pairs)} scenarios", flush=True)
 
+    worker_kwargs = {"tsa": tsa, "model_name": model_name, "model_path": model_path,
+                     "curves_dir": curves_dir}
     if workers > 1:
-        with ProcessPoolExecutor(max_workers=workers, initializer=_init_worker) as pool:
+        with ProcessPoolExecutor(max_workers=workers,
+                                 initializer=partial(_init_worker, **worker_kwargs)) as pool:
             futures = [pool.submit(_run_pair, pair) for pair in pairs]
             for future in as_completed(futures):
                 collect(*future.result())
     else:
-        _init_worker()
+        _init_worker(**worker_kwargs)
         for pair in pairs:
             collect(*_run_pair(pair))
 
@@ -154,13 +163,13 @@ def generate(out_dir: str = "results/tradeoff_grid",
         ["displacement_factor", "half_life"]).reset_index(drop=True)
 
     os.makedirs(out_dir, exist_ok=True)
-    with_provenance(harvest_all, solver=solver).to_csv(
+    with_provenance(harvest_all, solver=solver, tsa=tsa).to_csv(
         os.path.join(out_dir, "tradeoff_grid_harvest.csv"), index=False)
-    with_provenance(stock_all, solver=solver).to_csv(
+    with_provenance(stock_all, solver=solver, tsa=tsa).to_csv(
         os.path.join(out_dir, "tradeoff_grid_stock.csv"), index=False)
-    with_provenance(emission_all, solver=solver).to_csv(
+    with_provenance(emission_all, solver=solver, tsa=tsa).to_csv(
         os.path.join(out_dir, "tradeoff_grid_emission.csv"), index=False)
-    with_provenance(summary, solver=solver).to_csv(
+    with_provenance(summary, solver=solver, tsa=tsa).to_csv(
         os.path.join(out_dir, "tradeoff_grid_summary.csv"), index=False)
     print(f"Wrote trade-off grid records to {out_dir} ({len(pairs)} scenarios, "
           f"solver={solver})")

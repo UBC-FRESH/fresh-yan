@@ -17,6 +17,7 @@ no-harvest trajectories (initial landscape convention).
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -32,9 +33,11 @@ from .model import (
     dom_pools,
     ecosystem_pools,
     gross_growth,
+    model_paths,
     to_cbm_sit,
     total_emission,
 )
+from .records import provenance
 
 ROTATION_AGE = 120  # base-scenario area-weighted median harvest age (110) / trade-off (120-125)
 N_STEPS = 700
@@ -118,14 +121,17 @@ def _run_stand(sit_config, sit_tables, inventory_row, events, n_steps):
 
 
 def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
-             n_steps: int = N_STEPS, mode: str = "cycle") -> None:
+             n_steps: int = N_STEPS, mode: str = "cycle", tsa: str = "tsa24",
+             model_name: str | None = None, model_path: str | None = None) -> None:
     """Generate carbon yield curves (pools + fluxes) for every model dtype.
 
     ``mode``: ``'single'`` (one clearcut) or ``'cycle'`` (repeated clearcuts at
-    ``rotation_age``; extract the last cycle).
+    ``rotation_age``; extract the last cycle).  ``tsa``/``model_name``/``model_path``
+    select the management unit (defaults: TSA 24; see :func:`fresh_yan.model.model_paths`).
     """
     assert mode in ("single", "cycle")
-    fm = build_model()
+    model_name, model_path = model_paths(tsa, model_name, model_path)
+    fm = build_model(model_name=model_name, model_path=model_path)
     mapping = disturbance_type_mapping(fm)
     sit_config, sit_tables = to_cbm_sit(fm, mapping)
     empty_events = sit_tables["sit_events"]
@@ -198,6 +204,10 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
     os.makedirs(out_dir, exist_ok=True)
     c_curves_p.to_pickle(os.path.join(out_dir, "c_curves_p.pkl"))
     c_curves_f.to_pickle(os.path.join(out_dir, "c_curves_f.pkl"))
+    with open(os.path.join(out_dir, "provenance.json"), "w", encoding="utf-8") as fh:
+        json.dump({"tsa": tsa, "model_name": model_name, "model_path": model_path,
+                   "rotation_age": rotation_age, "n_steps": n_steps, "mode": mode,
+                   **provenance()}, fh, indent=2)
     print(f"Wrote {mode} carbon curves to {out_dir} "
           f"({len(c_curves_p)} pool rows, {len(c_curves_f)} flux rows)")
 

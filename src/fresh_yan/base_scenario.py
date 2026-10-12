@@ -8,7 +8,7 @@ import time
 import ws3.opt
 
 from .cbm import plugin_c_curves
-from .model import build_model, load_curves, sum_fluxes, sum_pools
+from .model import build_model, curves_dir_for, load_curves, model_paths, sum_fluxes, sum_pools
 from .records import with_provenance
 from .scenario import compile_scenario, gen_scenario, plot_scenario
 
@@ -37,17 +37,22 @@ def solve(fm, solver: str = "highs"):
     return compile_scenario(fm), problem, elapsed
 
 
-def generate(out_dir: str = "results/base_scenario", solver: str = "highs") -> None:
+def generate(out_dir: str = "results/base_scenario", solver: str = "highs",
+             tsa: str = "tsa24", model_name: str | None = None,
+             model_path: str | None = None, curves_dir: str | None = None) -> None:
     """Generate the base scenario records (CSV + four-panel figure)."""
-    fm = build_model()
+    model_name, model_path = model_paths(tsa, model_name, model_path)
+    curves_dir = curves_dir_for(tsa, curves_dir)
+    fm = build_model(model_name=model_name, model_path=model_path)
     fm.actions["harvest"].is_harvest = True  # required for cmp_c_z (notebook cell 40)
     # Plug in the carbon yield curves so the record's carbon columns are populated.
-    c_curves_p, c_curves_f = load_curves()
+    c_curves_p, c_curves_f = load_curves(os.path.join(curves_dir, "c_curves_p.pkl"),
+                                         os.path.join(curves_dir, "c_curves_f.pkl"))
     plugin_c_curves(fm, c_curves_p, c_curves_f, sum_pools, sum_fluxes)
     df, _problem, elapsed = solve(fm, solver=solver)
     os.makedirs(out_dir, exist_ok=True)
     fig, _axes = plot_scenario(df)
     fig.savefig(os.path.join(out_dir, "base_scenario.pdf"), bbox_inches="tight")
-    with_provenance(df, solver=solver).to_csv(
+    with_provenance(df, solver=solver, tsa=tsa).to_csv(
         os.path.join(out_dir, "base_scenario.csv"), index=False)
     print(f"Wrote base scenario records to {out_dir} (solver={solver}, solve {elapsed:.1f}s)")
