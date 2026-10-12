@@ -7,6 +7,9 @@
   `_period_inflows` identify harvest actions via the model's `is_harvest` flags
   (was a fixed acode, silently zeroing HWP inflows); `scenario.compile_scenario` takes
   `harvest_acode` (was zeroing the harvested-area/volume columns for `cc` models).
+- `model.to_cbm_sit` clamps tiny negative yield artifacts from ws3's SIT conversion
+  to 0 (the TSA 41 export hits -8.9e-16 at an age class and fails libCBM's parser);
+  genuinely negative yields raise instead of being silently clamped.
 - Curve dtype classification now follows the model's transition graph
   (`curves._regeneration_sources`): every harvest-transition target gets a
   simulated-clearcut (cycle) curve, with the natural parent as the pre-harvest source in

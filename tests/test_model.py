@@ -43,6 +43,9 @@ def test_build_model_and_to_cbm_sit() -> None:
         "sit_transitions",
     }
     assert len(sit_tables["sit_inventory"]) > 0
+    vcols = [c for c in sit_tables["sit_yield"].columns
+             if c.startswith("v") and c[1:].isdigit()]
+    assert vcols and sit_tables["sit_yield"][vcols].min().min() >= 0.0
 
 
 def test_regeneration_sources_legacy_layout() -> None:

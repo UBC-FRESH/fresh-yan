@@ -271,14 +271,37 @@ def disturbance_type_mapping(fm: ws3.forest.ForestModel,
 
 
 def to_cbm_sit(fm: ws3.forest.ForestModel, mapping: list[dict[str, str]] | None = None):
-    """Export the model to CBM Standard Import Tool (SIT) tables."""
+    """Export the model to CBM Standard Import Tool (SIT) tables.
+
+    libCBM requires non-negative yield values, but ws3's SIT conversion can emit tiny
+    negative floating-point artifacts where a curve reaches exactly zero (the TSA 41
+    export hits -8.9e-16 and fails libCBM's parser).  Artifacts with magnitude below
+    the tolerance are clamped to 0; genuinely negative yields raise ``ValueError``.
+    """
     if mapping is None:
         mapping = disturbance_type_mapping(fm)
-    return fm.to_cbm_sit(softwood_volume_yname="swdvol",
-                         hardwood_volume_yname="hwdvol",
-                         admin_boundary="British Columbia",
-                         eco_boundary="Montane Cordillera",
-                         disturbance_type_mapping=mapping)
+    sit_config, sit_tables = fm.to_cbm_sit(
+        softwood_volume_yname="swdvol",
+        hardwood_volume_yname="hwdvol",
+        admin_boundary="British Columbia",
+        eco_boundary="Montane Cordillera",
+        disturbance_type_mapping=mapping,
+    )
+    yld = sit_tables.get("sit_yield")
+    if yld is not None:
+        vcols = [c for c in yld.columns if c.startswith("v") and c[1:].isdigit()]
+        if vcols:
+            worst = float(yld[vcols].min().min())
+            if worst < 0.0:
+                if worst < -1e-9:
+                    raise ValueError(
+                        f"sit_yield contains negative values (min {worst:g}); "
+                        "refusing to clamp")
+                n = int((yld[vcols] < 0).to_numpy().sum())
+                yld[vcols] = yld[vcols].clip(lower=0.0)
+                print(f"to_cbm_sit: clamped {n} tiny negative yield value(s) to 0 "
+                      f"(min {worst:g})", flush=True)
+    return sit_config, sit_tables
 
 
 def load_curves(path_p: str = CURVES_P, path_f: str = CURVES_F):
