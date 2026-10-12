@@ -68,3 +68,25 @@ def test_gen_scenario_rejects_unknown_harvest_acode() -> None:
     fm = model.build_model(model_name="tsa24", model_path="data/woodstock_model_files_test")
     with pytest.raises(ValueError, match="harvest_acode"):
         gen_scenario(fm, harvest_acode="nonexistent_acode")
+
+
+def test_plugin_c_curves_full_mask_yields() -> None:
+    """Femic-style full-mask yield entries receive the plugged carbon curves (#3)."""
+    import pandas as pd
+
+    from fresh_yan.cbm import plugin_c_curves
+
+    fm = model.build_model(model_name="tsa99", model_path="tests/fixtures/cc_period_units",
+                           section_units="periods")
+    key = ("99", "managed", "9901000", "test_sp", "9921000")
+    dtype_str = " ".join(key)
+    idx = pd.MultiIndex.from_tuples([(dtype_str, 0), (dtype_str, 1), (dtype_str, 2)],
+                                    names=["dtype_key", "timestep"])
+    c_p = pd.DataFrame({"ecosystem": [1.0, 2.0, 3.0]}, index=idx)
+    c_f = pd.DataFrame({"total_emission": [0.1, 0.2, 0.3]}, index=idx)
+    plugin_c_curves(fm, c_p, c_f, ["ecosystem"], ["total_emission"])
+    dt = fm.dt(key)
+    assert dt.ycomp("ecosystem") is not None
+    assert dt.ycomp("total_emission") is not None
+    # values are retrievable on the age axis (flat-hold beyond the last point)
+    assert 1.0 <= float(dt.ycomp("ecosystem")[5]) <= 3.0

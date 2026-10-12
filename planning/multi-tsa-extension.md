@@ -94,6 +94,15 @@ Two findings that matter for the campaign:
   effect <=~2 tC/ha). Accepted for method parity with the legacy 5-rotation cycle and
   documented here rather than spun up further.
 
+## Grid wave (2026-10-12)
+
+- The first tsa24 grid pilot exposed `cbm.plugin_c_curves` failing on the femic yield
+  masks (carbon ycomps missing -> zero emissions, degenerate objective; fixed, see
+  CHANGE_LOG). A 9-cell mini-grid then validated the fixed path (harvest rises with
+  df and hl; all cells unique, emissions non-zero) before relaunching.
+- Full grids (identical 25 x 200, HiGHS) are relaunched for all five TSAs on the fixed
+  plugin; the completion watcher writes `/tmp/opencode/grids_validation.md`.
+
 ## Campaign checklist
 
 1. Build smoke per instance — done 2026-10-12 (TSA24 gate: 54 dtypes, `cc` action,

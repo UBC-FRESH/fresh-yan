@@ -33,6 +33,12 @@
   `harvest` silently zeroed the base-scenario LP on `cc` models - caught by the
   zero-harvest first run); `gen_scenario` raises on an acode absent from the model.
   The five femic base scenarios were regenerated with nonzero harvest.
+- `cbm.plugin_c_curves` now mirrors ws3's yield-mask matching instead of requiring the
+  legacy `('?','?',AU,'?',curve)` mask: femic `export ws3-sections` sections register
+  yields under the full dtype key, so the old lookup silently skipped every dtype,
+  zeroing all carbon columns and the grid objective (caught in the tsa24 grid pilot -
+  5,000 degenerate cells). Plugged curves verified against the pickles; regression
+  test with the femic-style fixture; base records and grids regenerated.
 
 # 2026-10-12 — Multi-TSA parameterization + femic section support (#3)
 
