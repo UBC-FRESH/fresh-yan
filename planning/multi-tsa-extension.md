@@ -102,9 +102,13 @@ Two findings that matter for the campaign:
    --section-units periods --harvest-acode cc --out-dir curves/femic-tsa<code>`);
    check per-dtype conservation (pre - post = merch + disturbance emissions) and the
    first-harvest cohort validation against a direct libCBM run.
-3. Base scenario per TSA (max even-flow) - also yields the area-weighted median harvest
-   age for the rotation-age rule.
-4. Trade-off grid per TSA (identical 25 x 200 design; HiGHS; 48 workers).
+3. Base scenario per TSA (max even-flow) - done 2026-10-12
+   (`results/femic-tsa<code>/base_scenario/`; 5% band; totals within 1-4% of the
+   source environment's published 10%-band baselines; also yields the area-weighted
+   median harvest age for a rotation-age sensitivity).
+4. Trade-off grid per TSA (identical 25 x 200 design; HiGHS) - tsa24 launched
+   2026-10-12 as the pilot (40 workers); remaining TSAs to follow in waves on the
+   72-core shared box.
 5. Cross-TSA analysis: threshold displacement factor vs half-life; steep-band location
    and width; maximum utilized volume relative to each unit's even-flow capacity;
    response at reference cells; relate to TSA attributes (area, species mix, age
