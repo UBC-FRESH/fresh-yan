@@ -26,6 +26,9 @@
   reference baselines in `evidence/campaign_baseline_2026-10-12/`); pins and notes in
   `planning/multi-tsa-extension.md`. Curve regeneration for the five-TSA campaign runs
   on the fixed path.
+- Generated the campaign carbon curves for all five instances (`curves/femic-tsa<code>/`;
+  32/49/27/30/38 regeneration-target dtypes; provenance pinned to `b4bad00`/`df83ab6`).
+  QA and the tsa08 slow-pool residual note in `planning/multi-tsa-extension.md`.
 
 # 2026-10-12 — Multi-TSA parameterization + femic section support (#3)
 

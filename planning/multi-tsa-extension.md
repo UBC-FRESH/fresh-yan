@@ -78,6 +78,22 @@ Two findings that matter for the campaign:
   `_period_inflows` follow `is_harvest`; `scenario.compile_scenario` takes
   `harvest_acode`.
 
+## Curve generation (2026-10-12)
+
+- Generated with `generate-curves --section-units periods --harvest-acode cc
+  --out-dir curves/femic-tsa<code>` (rotation 120, 5-rotation cycle, 700 steps).
+  Every femic dtype is a self-regenerating harvest target, so all dtypes receive
+  simulated-clearcut curves (`0 initial-only dtypes, N regeneration targets`).
+- Sets: tsa08 32 dtypes / tsa16 49 / tsa24 27 / tsa40 30 / tsa41 38 (701 rows per
+  dtype). QA: ecosystem identity exact (<=1.5e-13), merch floor 0. Worst reset
+  residual per TSA: +5.12 / -3.62 / +4.45 / +4.25 / +4.31 tC/ha.
+- Reset-residual note: the legacy TSA 24 audit calibrated the bound at +/-5 tC/ha
+  (-0.87..+3.74). The tsa08 outlier (+5.12, `8 managed 803001 bwbs_at 803001`) is
+  still-drifting slow-DOM convergence: the post-cut state rises ~+2.9/+2.0/+1.3/+0.9
+  tC/ha per rotation through cut 8 (equilibrium a few tC/ha higher; horizon-scale
+  effect <=~2 tC/ha). Accepted for method parity with the legacy 5-rotation cycle and
+  documented here rather than spun up further.
+
 ## Campaign checklist
 
 1. Build smoke per instance — done 2026-10-12 (TSA24 gate: 54 dtypes, `cc` action,
