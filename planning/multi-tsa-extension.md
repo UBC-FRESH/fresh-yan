@@ -1,7 +1,8 @@
 # Multi-TSA carbon experiment: extension plan and prototype (issue #3)
 
-Status: plumbing complete (prototype verified 2026-10-11/12); the campaign is gated on
-the femic section exports (`UBC-FRESH/femic#316`).
+Status: campaign live (2026-10-12). All five femic instances are materialized from the
+new Arbutus cloud; curve regeneration runs on the fixed acode path (see
+"Materialization and pins" below).
 
 ## Purpose
 
@@ -48,11 +49,41 @@ Two findings that matter for the campaign:
    (like TSA 24's) have operable stands at t = 0; still, check per TSA that the base
    scenario harvests a nonzero first period.
 
-## Campaign checklist (when the exports land)
+## Materialization and pins (2026-10-12)
 
-1. Stage each `femic-tsa<code>-instance` ws3 export; run a `build_model` + `to_cbm_sit`
-   smoke (operability and build-time checks per finding 1).
-2. Generate curves per TSA (`generate-curves --tsa <code> --model-path <export>`);
+- All five instances fully materialized from the new Arbutus cloud (`datalad get .`,
+  ~12.8 GB total; `arbutus-s3` endpoint `object-arbutus.alliancecan.ca`, tenant-prefixed
+  public URLs). Clone paths: `femic/external/femic-tsa<code>-instance/`; ws3 sections at
+  `output/ws3/tsa<code>.{lan,are,yld,act,trn}`.
+- **V2 re-export adopted (p113_5 "campaign config"):** THLB-filtered `.are` (stands with
+  `thlb_raw >= 50`; no unmanaged state remains), regenerated `.yld` (period-unit ages,
+  collapsed to one sample per period), unchanged `.lan/.act/.trn`; per-TSA dtype counts
+  27, 30, 32, 38, 49. Pins: tsa08 `9032dc9`, tsa16 `1d7f5f8`, tsa24 `8b29bb9`, tsa40
+  `7de7927`, tsa41 `efa2c0d` (v1 pins for reference: `814c4ca`/`c5bca92`/`9a4a1f5`/
+  `5a2dc99`/`46e494d`; v1 sections snapshotted session-locally at
+  `/tmp/opencode/femic_v1_snapshot/`). Reference baselines (even-flow epsilon 0.1, no
+  bird floors) in each instance's `evidence/campaign_baseline_2026-10-12/`; the locked
+  config in `evidence/p113_5_campaign_config_2026-10-12.md`.
+- Spec: 200-year horizon, 10-year periods, clearcut operability 80-400 years, stands
+  regenerate to age 0 (`*ACTION cc Y` -> targetage 0; self-transitions, no
+  natural->managed reclassification).
+- Campaign artifact convention: curves in `curves/femic-tsa<code>/`, records in
+  `results/femic-tsa<code>/<record>/` (explicit `--out-dir`), keeping the legacy TSA 24
+  `curves/` + `results/` untouched as the data-vintage baseline.
+- Curve-generation fixes needed for the femic section contract (this branch):
+  `curves._clearcut_event` writes the model's stand-replacing action as the SIT
+  `disturbance_type` id; dtype classification follows the transition graph
+  (`curves._regeneration_sources`) so every regeneration target (including natural-curve
+  self-targets) gets a simulated-clearcut curve; `accounting._harvest_area` /
+  `_period_inflows` follow `is_harvest`; `scenario.compile_scenario` takes
+  `harvest_acode`.
+
+## Campaign checklist
+
+1. Build smoke per instance — done 2026-10-12 (TSA24 gate: 54 dtypes, `cc` action,
+   20 x 10-year periods, SIT in 33 s).
+2. Generate curves per TSA (`generate-curves --tsa <code> --model-path <export>
+   --section-units periods --harvest-acode cc --out-dir curves/femic-tsa<code>`);
    check per-dtype conservation (pre - post = merch + disturbance emissions) and the
    first-harvest cohort validation against a direct libCBM run.
 3. Base scenario per TSA (max even-flow) - also yields the area-weighted median harvest

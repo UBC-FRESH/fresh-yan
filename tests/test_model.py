@@ -43,3 +43,14 @@ def test_build_model_and_to_cbm_sit() -> None:
         "sit_transitions",
     }
     assert len(sit_tables["sit_inventory"]) > 0
+
+
+def test_regeneration_sources_legacy_layout() -> None:
+    """Legacy TSA 24: harvest targets are the managed dtypes, sourced from naturals."""
+    from fresh_yan.curves import _regeneration_sources
+
+    fm = model.build_model()
+    sources = _regeneration_sources(fm, "harvest")
+    assert set(sources) == {k for k in fm.dtypes if k[2] != k[4]}
+    for source in sources.values():
+        assert source[2] == source[4]

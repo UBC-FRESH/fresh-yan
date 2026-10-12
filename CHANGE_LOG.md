@@ -1,3 +1,29 @@
+# 2026-10-12 — Femic curve generation: `cc` acodes + transition-graph classification (#3)
+
+- Fixed three hardcoded `"harvest"` acodes that broke (or silently zeroed) the femic
+  `cc` models: `curves._clearcut_event` now writes the model's stand-replacing action
+  as the SIT `disturbance_type` id (was `"harvest"`, undefined in the `cc`/`fire`
+  mapping, so every managed curve crashed); `accounting._harvest_area` and
+  `_period_inflows` identify harvest actions via the model's `is_harvest` flags
+  (was a fixed acode, silently zeroing HWP inflows); `scenario.compile_scenario` takes
+  `harvest_acode` (was zeroing the harvested-area/volume columns for `cc` models).
+- Curve dtype classification now follows the model's transition graph
+  (`curves._regeneration_sources`): every harvest-transition target gets a
+  simulated-clearcut (cycle) curve, with the natural parent as the pre-harvest source in
+  the legacy sections and the dtype itself in models that regenerate in place (femic:
+  all 27 THLB dtypes, including 11 natural-curve targets that previously got spun-up
+  curves and with them the post-reset DOM inconsistency). Legacy regeneration nodes and
+  parents are unchanged (regenerated managed dtype reproduces the committed pickle with
+  max abs diff 0).
+- Regression tests: `tests/test_curves.py` (event id follows the acode),
+  `tests/test_accounting.py` (harvest area follows `is_harvest`),
+  `tests/test_model.py` (legacy regeneration graph).
+- All five femic instances materialized from the new Arbutus cloud and updated to the
+  p113_5 "campaign config" re-export (THLB-filtered `.are`, period-age-fixed `.yld`,
+  reference baselines in `evidence/campaign_baseline_2026-10-12/`); pins and notes in
+  `planning/multi-tsa-extension.md`. Curve regeneration for the five-TSA campaign runs
+  on the fixed path.
+
 # 2026-10-12 — Multi-TSA parameterization + femic section support (#3)
 
 - The pipeline runs per management unit: `--tsa/--model-name/--model-path/--curves-dir`

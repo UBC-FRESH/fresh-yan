@@ -18,6 +18,7 @@ import time
 from functools import partial
 
 import pandas as pd
+import ws3.opt
 
 from fresh_yan.accounting import cmp_c_ce_v2, track_system_emission_v2
 from fresh_yan.cbm import plugin_c_curves
@@ -25,8 +26,6 @@ from fresh_yan.model import build_model, load_curves, sum_fluxes, sum_pools
 from fresh_yan.records import with_provenance
 from fresh_yan.scenario import cmp_c_caa, compile_scenario
 from fresh_yan.tradeoff_grid import CREDIT, HALF_LIFE_PAPER, UTIL_RATE
-
-import ws3.opt
 
 CELLS = [(100, 0.5), (100, 1.0), (100, 2.0)]
 VARIANTS = [

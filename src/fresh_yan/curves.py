@@ -11,8 +11,13 @@ reading a spun-up post-disturbance state:
 
 ``mode='single'`` uses one clearcut (age-0 = first-rotation post-harvest state);
 ``mode='cycle'`` repeats the clearcut every ``rotation_age`` years and extracts the
-last cycle (age-0 = rotation-cycle equilibrium).  Natural curves are the spun-up
-no-harvest trajectories (initial landscape convention).
+last cycle (age-0 = rotation-cycle equilibrium).
+
+Dtypes are classified from the model's transition graph (``_regeneration_sources``):
+harvest-transition targets receive age-0 resets and get simulated-clearcut curves
+(pre-harvest source = the natural parent in the legacy sections, the dtype itself in
+models that regenerate in place, e.g. femic exports); every other dtype only ever
+carries initial stands and gets the spun-up no-harvest trajectory.
 """
 
 from __future__ import annotations
@@ -43,8 +48,19 @@ ROTATION_AGE = 120  # base-scenario area-weighted median harvest age (110) / tra
 N_STEPS = 700
 
 
-def _natural_parent(fm, dtype_key, harvest_acode="harvest"):
-    """Find the natural (pre-harvest) dtype that transitions into ``dtype_key``."""
+def _regeneration_sources(fm, harvest_acode="harvest"):
+    """Map each regeneration target to its preferred pre-harvest (source) dtype.
+
+    A dtype that is the target of a harvest transition receives age-0 area resets and
+    needs a simulated-clearcut carbon curve; the source dtype is the stand that is
+    cut.  The legacy TSA 24 sections keep initial stands in natural-curve dtypes and
+    regenerate them into managed-curve dtypes, so the source is the natural parent.
+    Femic ``export ws3-sections`` models regenerate stands in place (source == target,
+    including natural-curve targets for AUs without a managed curve), so the dtype is
+    its own source.  When several sources exist, the natural one (``curve id == AU``)
+    wins.
+    """
+    sources: dict[tuple, tuple] = {}
     for cand in fm.dtypes:
         dt = fm.dt(cand)
         for (acode, sage) in dt.transitions:
@@ -52,10 +68,12 @@ def _natural_parent(fm, dtype_key, harvest_acode="harvest"):
                 continue
             for target in dt.transitions[acode, sage]:
                 tmask = target[0]
-                dtk = [t if tmask[i] == "?" else tmask[i] for i, t in enumerate(cand)]
-                if tuple(dtk) == tuple(dtype_key):
-                    return cand
-    return None
+                dtk = tuple(t if tmask[i] == "?" else tmask[i]
+                            for i, t in enumerate(cand))
+                prev = sources.get(dtk)
+                if prev is None or (cand[2] == cand[4] and prev[2] != prev[4]):
+                    sources[dtk] = cand
+    return sources
 
 
 def _single_stand_inventory(sit_tables, dtype_key, age=1, area=1.0,
@@ -73,7 +91,14 @@ def _single_stand_inventory(sit_tables, dtype_key, age=1, area=1.0,
     return sub
 
 
-def _clearcut_event(events, inventory_row, year, area=1.0):
+def _clearcut_event(events, inventory_row, year, area=1.0, harvest_acode="harvest"):
+    """Append a stand-replacing clearcut event to ``events``.
+
+    ``harvest_acode`` must match the model's stand-replacing action (the
+    ``user_dist_type`` of :func:`fresh_yan.model.disturbance_type_mapping`):
+    ``"harvest"`` for the legacy TSA 24 sections, ``"cc"`` for femic
+    ``export ws3-sections`` exports.
+    """
     row = {}
     theme_cols = [c for c in events.columns if c.startswith("theme")]
     for c in theme_cols:
@@ -90,7 +115,7 @@ def _clearcut_event(events, inventory_row, year, area=1.0):
     row["sort_type"] = 3
     row["target_type"] = "A"
     row["target"] = area
-    row["disturbance_type"] = "harvest"
+    row["disturbance_type"] = harvest_acode
     row["disturbance_year"] = year
     return pd.concat([events, pd.DataFrame([row])], ignore_index=True)
 
@@ -143,9 +168,11 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
     sit_config, sit_tables = to_cbm_sit(fm, mapping)
     empty_events = sit_tables["sit_events"]
 
-    natural_keys = [k for k in fm.dtypes if k[2] == k[4]]
-    managed_keys = [k for k in fm.dtypes if k[2] != k[4]]
-    print(f"{len(natural_keys)} natural dtypes, {len(managed_keys)} managed dtypes", flush=True)
+    sources = _regeneration_sources(fm, harvest_acode)
+    natural_keys = [k for k in fm.dtypes if k not in sources]
+    managed_keys = [k for k in fm.dtypes if k in sources]
+    print(f"{len(natural_keys)} initial-only dtypes, {len(managed_keys)} regeneration "
+          f"targets", flush=True)
 
     pool_curves: dict[str, pd.DataFrame] = {}
     flux_curves: dict[str, pd.DataFrame] = {}
@@ -161,14 +188,12 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
 
     # --- managed curves: simulated clearcut(s) ---
     for key in managed_keys:
-        parent = _natural_parent(fm, key, harvest_acode)
-        if parent is None:
-            print(f"  managed {key}: NO NATURAL PARENT - skipped", flush=True)
-            continue
+        parent = sources[key]
         inv = _single_stand_inventory(sit_tables, parent, historic_disturbance="fire")
         events = empty_events
         if mode == "single":
-            events = _clearcut_event(events, inv, rotation_age)
+            events = _clearcut_event(events, inv, rotation_age,
+                                     harvest_acode=harvest_acode)
             total_steps = rotation_age + n_steps
             cut_at = rotation_age
         else:
@@ -178,7 +203,8 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
             for i in range(1, n_rot + 1):
                 # first cut: natural stand; later cuts: managed stand (theme4 differs)
                 src = inv if i == 1 else inv_managed
-                events = _clearcut_event(events, src, rotation_age * i)
+                events = _clearcut_event(events, src, rotation_age * i,
+                                         harvest_acode=harvest_acode)
             total_steps = rotation_age * n_rot + n_steps
             cut_at = rotation_age * n_rot
         out = _run_stand(sit_config, sit_tables, inv, events, total_steps)

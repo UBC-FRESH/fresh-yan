@@ -13,7 +13,7 @@ from .records import with_provenance
 from .scenario import compile_scenario, gen_scenario, plot_scenario
 
 
-def solve(fm, solver: str = "highs"):
+def solve(fm, solver: str = "highs", harvest_acode: str = "harvest"):
     """Build and solve the base scenario (max even-flow harvest volume).
 
     Even-flow constraints limit period-over-period variation of harvested area and
@@ -34,7 +34,7 @@ def solve(fm, solver: str = "highs"):
     fm.apply_schedule(schedule, force_integral_area=False, override_operability=False,
                       fuzzy_age=False, recourse_enabled=False, verbose=False,
                       compile_c_ycomps=True)
-    return compile_scenario(fm), problem, elapsed
+    return compile_scenario(fm, harvest_acode=harvest_acode), problem, elapsed
 
 
 def generate(out_dir: str = "results/base_scenario", solver: str = "highs",
@@ -51,7 +51,7 @@ def generate(out_dir: str = "results/base_scenario", solver: str = "highs",
     c_curves_p, c_curves_f = load_curves(os.path.join(curves_dir, "c_curves_p.pkl"),
                                          os.path.join(curves_dir, "c_curves_f.pkl"))
     plugin_c_curves(fm, c_curves_p, c_curves_f, sum_pools, sum_fluxes)
-    df, _problem, elapsed = solve(fm, solver=solver)
+    df, _problem, elapsed = solve(fm, solver=solver, harvest_acode=harvest_acode)
     os.makedirs(out_dir, exist_ok=True)
     fig, _axes = plot_scenario(df)
     fig.savefig(os.path.join(out_dir, "base_scenario.pdf"), bbox_inches="tight")

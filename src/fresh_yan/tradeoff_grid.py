@@ -92,7 +92,7 @@ def solve_scenario(fm, half_life: float, displacement: float, solver: str = "hig
     fm.apply_schedule(schedule, force_integral_area=False, override_operability=False,
                       fuzzy_age=False, recourse_enabled=False, verbose=False,
                       compile_c_ycomps=True)
-    harvest = compile_scenario(fm)
+    harvest = compile_scenario(fm, harvest_acode=harvest_acode)
     stock = track_system_stock_v2(fm, half_life, HALF_LIFE_PAPER, PROPORTION_SOLID_WOOD,
                                   UTIL_RATE)
     emission = track_system_emission_v2(fm, half_life, HALF_LIFE_PAPER,
