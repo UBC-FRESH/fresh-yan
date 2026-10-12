@@ -1,0 +1,4 @@
+ACTIONS
+*ACTION cc Y
+*OPERABLE cc
+99 managed 9901000 ? ? _AGE >= 2 AND _AGE <= 50

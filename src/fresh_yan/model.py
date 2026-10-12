@@ -188,14 +188,20 @@ def build_model(
     horizon: int = HORIZON,
     period_length: int = PERIOD_LENGTH,
     max_age: int = MAX_AGE,
+    section_units: str = "years",
 ) -> ws3.forest.ForestModel:
     """Build a forest-estate model with no actions scheduled (no-harvest case).
 
     Defaults are the TSA 24 model; other management units pass their own section stem
-    and directory (see :func:`model_paths`).  The Woodstock-format files for this
-    project use stand ages in *years* (5..475), so no ``convert_periods_to_years`` is
-    needed.
+    and directory (see :func:`model_paths`).  ``section_units`` selects the Woodstock
+    time-unit contract of the section files: ``"years"`` for the legacy TSA 24 files
+    (ages 5..475 in years), or ``"periods"`` for femic ``export ws3-sections`` exports
+    (``.are`` ages and ``.act`` timing are period indices; ws3 multiplies them by the
+    period length on import).
     """
+    if section_units not in ("years", "periods"):
+        raise ValueError(f"section_units must be 'years' or 'periods', got '{section_units}'")
+    convert = period_length if section_units == "periods" else None
     fm = ws3.forest.ForestModel(model_name=model_name,
                                 model_path=model_path,
                                 base_year=base_year,
@@ -203,10 +209,10 @@ def build_model(
                                 period_length=period_length,
                                 max_age=max_age)
     fm.import_landscape_section()
-    fm.import_areas_section()
-    fm.import_yields_section()
-    fm.import_actions_section()
-    fm.import_transitions_section()
+    fm.import_areas_section(convert_periods_to_years=convert)
+    fm.import_yields_section(convert_periods_to_years=convert)
+    fm.import_actions_section(convert_periods_to_years=convert)
+    fm.import_transitions_section(convert_periods_to_years=convert)
     fm.initialize_areas()
     fm.add_null_action()
     fm.reset_actions()
@@ -245,15 +251,21 @@ def record_dir_for(tsa: str = MODEL_NAME, folder: str = "",
     return f"results/{tsa}/{folder.rsplit('/', 1)[-1]}"
 
 
-def disturbance_type_mapping(fm: ws3.forest.ForestModel) -> list[dict[str, str]]:
-    """CBM disturbance-type mapping used by ``to_cbm_sit`` (notebook cell 7)."""
+def disturbance_type_mapping(fm: ws3.forest.ForestModel,
+                             harvest_acode: str = "harvest") -> list[dict[str, str]]:
+    """CBM disturbance-type mapping used by ``to_cbm_sit`` (notebook cell 7).
+
+    ``harvest_acode`` names the stand-replacing action in the model: ``"harvest"`` for
+    the legacy TSA 24 sections, ``"cc"`` for the femic ``ws3-sections`` exports.
+    """
     mapping = [
-        {"user_dist_type": "harvest", "default_dist_type": "Clearcut harvesting without salvage"},
+        {"user_dist_type": harvest_acode,
+         "default_dist_type": "Clearcut harvesting without salvage"},
         {"user_dist_type": "fire", "default_dist_type": "Wildfire"},
     ]
     for dtype_key in fm.dtypes:
         fm.dt(dtype_key).last_pass_disturbance = (
-            "fire" if dtype_key[2] == dtype_key[4] else "harvest"
+            "fire" if dtype_key[2] == dtype_key[4] else harvest_acode
         )
     return mapping
 

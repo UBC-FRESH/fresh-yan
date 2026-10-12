@@ -43,12 +43,12 @@ ROTATION_AGE = 120  # base-scenario area-weighted median harvest age (110) / tra
 N_STEPS = 700
 
 
-def _natural_parent(fm, dtype_key):
+def _natural_parent(fm, dtype_key, harvest_acode="harvest"):
     """Find the natural (pre-harvest) dtype that transitions into ``dtype_key``."""
     for cand in fm.dtypes:
         dt = fm.dt(cand)
         for (acode, sage) in dt.transitions:
-            if acode != "harvest":
+            if acode != harvest_acode:
                 continue
             for target in dt.transitions[acode, sage]:
                 tmask = target[0]
@@ -122,17 +122,24 @@ def _run_stand(sit_config, sit_tables, inventory_row, events, n_steps):
 
 def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
              n_steps: int = N_STEPS, mode: str = "cycle", tsa: str = "tsa24",
-             model_name: str | None = None, model_path: str | None = None) -> None:
+             model_name: str | None = None, model_path: str | None = None,
+             section_units: str = "years", harvest_acode: str = "harvest") -> None:
     """Generate carbon yield curves (pools + fluxes) for every model dtype.
 
     ``mode``: ``'single'`` (one clearcut) or ``'cycle'`` (repeated clearcuts at
     ``rotation_age``; extract the last cycle).  ``tsa``/``model_name``/``model_path``
-    select the management unit (defaults: TSA 24; see :func:`fresh_yan.model.model_paths`).
+    select the management unit (defaults: TSA 24; see :func:`fresh_yan.model.model_paths`);
+    ``section_units``/``harvest_acode`` match the section-file contract of femic
+    ``export ws3-sections`` exports (``"periods"``/``"cc"``).
     """
     assert mode in ("single", "cycle")
     model_name, model_path = model_paths(tsa, model_name, model_path)
-    fm = build_model(model_name=model_name, model_path=model_path)
-    mapping = disturbance_type_mapping(fm)
+    # Capture provenance before writing into curves/ so fy_commit is not polluted by
+    # the generated outputs themselves.
+    prov = provenance()
+    fm = build_model(model_name=model_name, model_path=model_path,
+                     section_units=section_units)
+    mapping = disturbance_type_mapping(fm, harvest_acode=harvest_acode)
     sit_config, sit_tables = to_cbm_sit(fm, mapping)
     empty_events = sit_tables["sit_events"]
 
@@ -154,7 +161,7 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
 
     # --- managed curves: simulated clearcut(s) ---
     for key in managed_keys:
-        parent = _natural_parent(fm, key)
+        parent = _natural_parent(fm, key, harvest_acode)
         if parent is None:
             print(f"  managed {key}: NO NATURAL PARENT - skipped", flush=True)
             continue
@@ -207,7 +214,8 @@ def generate(out_dir: str = "curves", rotation_age: int = ROTATION_AGE,
     with open(os.path.join(out_dir, "provenance.json"), "w", encoding="utf-8") as fh:
         json.dump({"tsa": tsa, "model_name": model_name, "model_path": model_path,
                    "rotation_age": rotation_age, "n_steps": n_steps, "mode": mode,
-                   **provenance()}, fh, indent=2)
+                   "section_units": section_units, "harvest_acode": harvest_acode,
+                   **prov}, fh, indent=2)
     print(f"Wrote {mode} carbon curves to {out_dir} "
           f"({len(c_curves_p)} pool rows, {len(c_curves_f)} flux rows)")
 

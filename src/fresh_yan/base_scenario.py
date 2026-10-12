@@ -39,12 +39,14 @@ def solve(fm, solver: str = "highs"):
 
 def generate(out_dir: str = "results/base_scenario", solver: str = "highs",
              tsa: str = "tsa24", model_name: str | None = None,
-             model_path: str | None = None, curves_dir: str | None = None) -> None:
+             model_path: str | None = None, curves_dir: str | None = None,
+             section_units: str = "years", harvest_acode: str = "harvest") -> None:
     """Generate the base scenario records (CSV + four-panel figure)."""
     model_name, model_path = model_paths(tsa, model_name, model_path)
     curves_dir = curves_dir_for(tsa, curves_dir)
-    fm = build_model(model_name=model_name, model_path=model_path)
-    fm.actions["harvest"].is_harvest = True  # required for cmp_c_z (notebook cell 40)
+    fm = build_model(model_name=model_name, model_path=model_path,
+                     section_units=section_units)
+    fm.actions[harvest_acode].is_harvest = True  # required for cmp_c_z (notebook cell 40)
     # Plug in the carbon yield curves so the record's carbon columns are populated.
     c_curves_p, c_curves_f = load_curves(os.path.join(curves_dir, "c_curves_p.pkl"),
                                          os.path.join(curves_dir, "c_curves_f.pkl"))

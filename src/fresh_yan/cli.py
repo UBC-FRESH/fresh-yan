@@ -28,13 +28,19 @@ def no_harvest(
         None, help="Woodstock sections directory (default: data/woodstock_model_files_<tsa>)."),
     curves_dir: str | None = typer.Option(
         None, help="Curve directory (default: curves; curves/<tsa> for other TSAs)."),
+    section_units: str = typer.Option(
+        "years", help="Woodstock section time units: 'years' (legacy) or 'periods' "
+                      "(femic ws3-sections exports)."),
+    harvest_acode: str = typer.Option(
+        "harvest", help="Stand-replacing action code (femic ws3-sections exports use 'cc')."),
 ) -> None:
     """Regenerate the no-harvest comparison records (ws3 vs libCBM)."""
     from .model import record_dir_for
     from .noharvest import generate
 
     generate(record_dir_for(tsa, "results/no_harvest", out_dir), tsa=tsa,
-             model_name=model_name, model_path=model_path, curves_dir=curves_dir)
+             model_name=model_name, model_path=model_path, curves_dir=curves_dir,
+             section_units=section_units, harvest_acode=harvest_acode)
 
 
 @app.command()
@@ -50,13 +56,19 @@ def base_scenario(
         None, help="Woodstock sections directory (default: data/woodstock_model_files_<tsa>)."),
     curves_dir: str | None = typer.Option(
         None, help="Curve directory (default: curves; curves/<tsa> for other TSAs)."),
+    section_units: str = typer.Option(
+        "years", help="Woodstock section time units: 'years' (legacy) or 'periods' "
+                      "(femic ws3-sections exports)."),
+    harvest_acode: str = typer.Option(
+        "harvest", help="Stand-replacing action code (femic ws3-sections exports use 'cc')."),
 ) -> None:
     """Regenerate the base scenario records (max even-flow harvest volume)."""
     from .base_scenario import generate
     from .model import record_dir_for
 
     generate(record_dir_for(tsa, "results/base_scenario", out_dir), solver=solver,
-             tsa=tsa, model_name=model_name, model_path=model_path, curves_dir=curves_dir)
+             tsa=tsa, model_name=model_name, model_path=model_path, curves_dir=curves_dir,
+             section_units=section_units, harvest_acode=harvest_acode)
 
 
 def _parse_range(spec: str, kind: str) -> list:
@@ -91,13 +103,19 @@ def generate_curves(
         None, help="Woodstock section stem (default: the TSA label)."),
     model_path: str | None = typer.Option(
         None, help="Woodstock sections directory (default: data/woodstock_model_files_<tsa>)."),
+    section_units: str = typer.Option(
+        "years", help="Woodstock section time units: 'years' (legacy) or 'periods' "
+                      "(femic ws3-sections exports)."),
+    harvest_acode: str = typer.Option(
+        "harvest", help="Stand-replacing action code (femic ws3-sections exports use 'cc')."),
 ) -> None:
     """Regenerate the carbon yield curves (managed curves from simulated clearcuts)."""
     from .curves import generate
     from .model import curves_dir_for
 
     generate(curves_dir_for(tsa, out_dir), n_steps=n_steps, rotation_age=rotation_age,
-             tsa=tsa, model_name=model_name, model_path=model_path)
+             tsa=tsa, model_name=model_name, model_path=model_path,
+             section_units=section_units, harvest_acode=harvest_acode)
 
 
 @app.command()
@@ -117,6 +135,11 @@ def trade_off_grid(
         None, help="Woodstock sections directory (default: data/woodstock_model_files_<tsa>)."),
     curves_dir: str | None = typer.Option(
         None, help="Curve directory (default: curves; curves/<tsa> for other TSAs)."),
+    section_units: str = typer.Option(
+        "years", help="Woodstock section time units: 'years' (legacy) or 'periods' "
+                      "(femic ws3-sections exports)."),
+    harvest_acode: str = typer.Option(
+        "harvest", help="Stand-replacing action code (femic ws3-sections exports use 'cc')."),
 ) -> None:
     """Regenerate the trade-off grid records (emission-minimizing scenarios)."""
     from .model import record_dir_for
@@ -126,7 +149,8 @@ def trade_off_grid(
              displacements=_parse_range(displacements, "float"),
              half_lives=_parse_range(half_lives, "int"),
              workers=workers, solver=solver, tsa=tsa, model_name=model_name,
-             model_path=model_path, curves_dir=curves_dir)
+             model_path=model_path, curves_dir=curves_dir,
+             section_units=section_units, harvest_acode=harvest_acode)
 
 
 @app.command()

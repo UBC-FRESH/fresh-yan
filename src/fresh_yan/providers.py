@@ -30,21 +30,23 @@ _NODE_TYPES = (
         description=("Managed curves from simulated clearcuts (rotation-cycle equilibrium); "
                      "natural curves from the spun-up no-harvest trajectories."),
         parameters=("out_dir", "rotation_age", "n_steps", "mode", "tsa", "model_name",
-                    "model_path"),
+                    "model_path", "section_units", "harvest_acode"),
         artifacts=("curves_p", "curves_f"),
     ),
     NodeTypeMetadata(
         id="no_harvest",
         name="No-harvest comparison records",
         description="ws3 carbon yield-curve landscape vs a direct libCBM run (no harvest).",
-        parameters=("out_dir", "tsa", "model_name", "model_path", "curves_dir"),
+        parameters=("out_dir", "tsa", "model_name", "model_path", "curves_dir",
+                    "section_units", "harvest_acode"),
         artifacts=("cbm_csv", "ws3_csv", "pct_diff_csv", "summary_csv", "figures"),
     ),
     NodeTypeMetadata(
         id="base_scenario",
         name="Base scenario records",
         description="Maximize even-flow harvest volume over the 200-year horizon.",
-        parameters=("out_dir", "solver", "tsa", "model_name", "model_path", "curves_dir"),
+        parameters=("out_dir", "solver", "tsa", "model_name", "model_path", "curves_dir",
+                    "section_units", "harvest_acode"),
         artifacts=("records_csv", "figure"),
     ),
     NodeTypeMetadata(
@@ -53,7 +55,8 @@ _NODE_TYPES = (
         description=("Emission-minimizing scenarios over (displacement factor, solid-wood "
                      "half-life) on the corrected accounting."),
         parameters=("out_dir", "displacements", "half_lives", "workers", "solver", "tsa",
-                    "model_name", "model_path", "curves_dir"),
+                    "model_name", "model_path", "curves_dir", "section_units",
+                    "harvest_acode"),
         artifacts=("harvest_csv", "stock_csv", "emission_csv", "summary_csv"),
     ),
     NodeTypeMetadata(
@@ -212,7 +215,9 @@ class PipelineProvider:
                  mode=str(params.get("mode", "cycle")),
                  tsa=tsa,
                  model_name=params.get("model_name"),
-                 model_path=params.get("model_path"))
+                 model_path=params.get("model_path"),
+                 section_units=str(params.get("section_units", "years")),
+                 harvest_acode=str(params.get("harvest_acode", "harvest")))
         return ProviderRunResult(
             status=RunStatus.SUCCESS,
             outputs={"curves_dir": str(out_dir)},
@@ -230,7 +235,9 @@ class PipelineProvider:
         out_dir = context.resolve_path(record_dir_for(tsa, "results/no_harvest",
                                                       params.get("out_dir")))
         generate(str(out_dir), tsa=tsa, model_name=params.get("model_name"),
-                 model_path=params.get("model_path"), curves_dir=params.get("curves_dir"))
+                 model_path=params.get("model_path"), curves_dir=params.get("curves_dir"),
+                 section_units=str(params.get("section_units", "years")),
+                 harvest_acode=str(params.get("harvest_acode", "harvest")))
         return ProviderRunResult(
             status=RunStatus.SUCCESS,
             outputs={"records_dir": str(out_dir)},
@@ -252,7 +259,9 @@ class PipelineProvider:
                                                       params.get("out_dir")))
         generate(str(out_dir), solver=str(params.get("solver", "highs")), tsa=tsa,
                  model_name=params.get("model_name"), model_path=params.get("model_path"),
-                 curves_dir=params.get("curves_dir"))
+                 curves_dir=params.get("curves_dir"),
+                 section_units=str(params.get("section_units", "years")),
+                 harvest_acode=str(params.get("harvest_acode", "harvest")))
         return ProviderRunResult(
             status=RunStatus.SUCCESS,
             outputs={"records_dir": str(out_dir)},
@@ -277,7 +286,9 @@ class PipelineProvider:
                  tsa=tsa,
                  model_name=params.get("model_name"),
                  model_path=params.get("model_path"),
-                 curves_dir=params.get("curves_dir"))
+                 curves_dir=params.get("curves_dir"),
+                 section_units=str(params.get("section_units", "years")),
+                 harvest_acode=str(params.get("harvest_acode", "harvest")))
         return ProviderRunResult(
             status=RunStatus.SUCCESS,
             outputs={"records_dir": str(out_dir)},

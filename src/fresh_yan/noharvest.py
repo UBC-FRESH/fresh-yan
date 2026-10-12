@@ -42,12 +42,14 @@ def pct_diff(df_ws3: pd.DataFrame, df_cbm: pd.DataFrame, timestep: str = "period
 
 def generate(out_dir: str = "results/no_harvest", tsa: str = "tsa24",
              model_name: str | None = None, model_path: str | None = None,
-             curves_dir: str | None = None) -> None:
+             curves_dir: str | None = None, section_units: str = "years",
+             harvest_acode: str = "harvest") -> None:
     """Generate the no-harvest comparison records (CSVs and figures)."""
     model_name, model_path = model_paths(tsa, model_name, model_path)
     curves_dir = curves_dir_for(tsa, curves_dir)
-    fm = build_model(model_name=model_name, model_path=model_path)
-    mapping = disturbance_type_mapping(fm)
+    fm = build_model(model_name=model_name, model_path=model_path,
+                     section_units=section_units)
+    mapping = disturbance_type_mapping(fm, harvest_acode=harvest_acode)
     sit_config, sit_tables = to_cbm_sit(fm, mapping)
 
     # libCBM: real landscape inventory, no-harvest dynamics over the model horizon

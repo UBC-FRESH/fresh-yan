@@ -1,3 +1,18 @@
+# 2026-10-12 — Multi-TSA parameterization + femic section support (#3)
+
+- The pipeline runs per management unit: `--tsa/--model-name/--model-path/--curves-dir`
+  across the CLI and FreshForge provider nodes; `curves/<tsa>` and `results/<tsa>/...`
+  defaults; a `tsa` provenance column on records.
+- Femic `export ws3-sections` exports are consumable directly: `--section-units periods`
+  applies ws3's period-to-years conversion on import (`.are` ages, `.act` timing,
+  `.yld` ages), and `--harvest-acode` selects the stand-replacing action (`harvest`
+  for the legacy TSA 24 sections; `cc` for femic exports).
+- Curve generation writes `provenance.json`; provenance is captured before the
+  generated files are written so `fy_commit` is not polluted by the outputs themselves.
+- Verified against the public TSA29 femic export and the wbi-birds `tsa24_clipped`
+  fixture; findings and the five-TSA campaign checklist in
+  `planning/multi-tsa-extension.md`.
+
 # 2026-10-11 — Corrected trade-off grid records + adversarial audit (#1)
 
 - Generated the full corrected trade-off grid: 5,000 scenarios (25 displacement
