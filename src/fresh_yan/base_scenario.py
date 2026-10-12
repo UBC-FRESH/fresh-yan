@@ -21,7 +21,8 @@ def solve(fm, solver: str = "highs", harvest_acode: str = "harvest"):
     """
     cflw_ha = (dict.fromkeys(fm.periods, 0.05), 1)
     cflw_hv = (dict.fromkeys(fm.periods, 0.05), 1)
-    problem = gen_scenario(fm=fm, name="base", cflw_ha=cflw_ha, cflw_hv=cflw_hv,
+    problem = gen_scenario(fm=fm, name="base", harvest_acode=harvest_acode,
+                           cflw_ha=cflw_ha, cflw_hv=cflw_hv,
                            cgen_ha={}, cgen_hv={}, cgen_gs={})
     problem.solver(solver)
     fm.reset()

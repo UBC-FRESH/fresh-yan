@@ -29,6 +29,10 @@
 - Generated the campaign carbon curves for all five instances (`curves/femic-tsa<code>/`;
   32/49/27/30/38 regeneration-target dtypes; provenance pinned to `b4bad00`/`df83ab6`).
   QA and the tsa08 slow-pool residual note in `planning/multi-tsa-extension.md`.
+- `base_scenario.solve` now threads `harvest_acode` into `gen_scenario` (the default
+  `harvest` silently zeroed the base-scenario LP on `cc` models - caught by the
+  zero-harvest first run); `gen_scenario` raises on an acode absent from the model.
+  The five femic base scenarios were regenerated with nonzero harvest.
 
 # 2026-10-12 — Multi-TSA parameterization + femic section support (#3)
 

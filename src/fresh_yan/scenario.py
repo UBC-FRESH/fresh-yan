@@ -142,6 +142,11 @@ def gen_scenario(fm, name='base', util_rate=0.85, harvest_acode='harvest',
     The harvest action must be flagged (``fm.actions[harvest_acode].is_harvest =
     True``) for the objective coefficients (``cmp_c_z``) to compile.
     """
+    if harvest_acode not in fm.actions:
+        raise ValueError(
+            f"harvest_acode {harvest_acode!r} is not an action in the model "
+            f"(actions: {sorted(fm.actions)}); a missing acode silently zeroes the "
+            "harvest coefficients")
     from functools import partial
 
     cflw_ha = cflw_ha or {}

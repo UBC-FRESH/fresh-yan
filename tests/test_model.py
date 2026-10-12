@@ -1,5 +1,7 @@
 """Model construction and CBM SIT export smoke tests (small test model)."""
 
+import pytest
+
 from fresh_yan import model
 
 
@@ -57,3 +59,12 @@ def test_regeneration_sources_legacy_layout() -> None:
     assert set(sources) == {k for k in fm.dtypes if k[2] != k[4]}
     for source in sources.values():
         assert source[2] == source[4]
+
+
+def test_gen_scenario_rejects_unknown_harvest_acode() -> None:
+    """An action code absent from the model must raise, not zero the LP coefficients."""
+    from fresh_yan.scenario import gen_scenario
+
+    fm = model.build_model(model_name="tsa24", model_path="data/woodstock_model_files_test")
+    with pytest.raises(ValueError, match="harvest_acode"):
+        gen_scenario(fm, harvest_acode="nonexistent_acode")
