@@ -1,0 +1,14 @@
+{
+  "tsa": "tsa41",
+  "model_name": "tsa41",
+  "model_path": "/srv/shared-data/gep/jupyterhub02-projects/femic/external/femic-tsa41-instance/output/ws3",
+  "rotation_age": 120,
+  "n_steps": 700,
+  "mode": "cycle",
+  "section_units": "periods",
+  "harvest_acode": "cc",
+  "fy_commit": "df83ab6",
+  "fy_version": "0.0.1",
+  "ws3_version": "1.1.0a5",
+  "libcbm_version": "2.10.2"
+}

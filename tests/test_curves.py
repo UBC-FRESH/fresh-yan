@@ -10,8 +10,10 @@ and the residual bounds.
 
 from __future__ import annotations
 
+import pandas as pd
 import pytest
 
+from fresh_yan.curves import _clearcut_event
 from fresh_yan.model import load_curves
 
 ROTATION_AGE = 120
@@ -55,3 +57,31 @@ def test_managed_merch_is_nonnegative(curves) -> None:
     c_p, _ = curves
     for dtk in _managed_dtypes(c_p):
         assert c_p.loc[dtk]["merch"].min() > -1e-6, dtk
+
+
+_EVENT_COLS = [
+    "theme0", "theme1", "theme2", "theme3", "theme4", "species", "using_age_class",
+    "min_softwood_age", "max_softwood_age", "min_hardwood_age", "max_hardwood_age",
+    "MinYearsSinceDist", "MaxYearsSinceDist", "LastDistTypeID", "MinTotBiomassC",
+    "MaxTotBiomassC", "MinSWMerchBiomassC", "MaxSWMerchBiomassC", "MinHWMerchBiomassC",
+    "MaxHWMerchBiomassC", "MinTotalStemSnagC", "MaxTotalStemSnagC", "MinSWStemSnagC",
+    "MaxSWStemSnagC", "MinHWStemSnagC", "MaxHWStemSnagC", "MinTotalStemSnagMerchC",
+    "MaxTotalStemSnagMerchC", "MinSWMerchStemSnagC", "MaxSWMerchStemSnagC",
+    "MinHWMerchStemSnagC", "MaxHWMerchStemSnagC", "efficiency", "sort_type",
+    "target_type", "target", "disturbance_type", "disturbance_year",
+]
+
+
+def test_clearcut_event_uses_harvest_acode() -> None:
+    """The clearcut event's SIT disturbance id follows ``harvest_acode`` (#3).
+
+    Regression test for the femic failure: the event row used the hardcoded
+    ``"harvest"`` id, which is undefined in SIT tables whose mapping uses ``"cc"``.
+    """
+    events = pd.DataFrame(columns=_EVENT_COLS)
+    inv = pd.DataFrame([{"theme0": "24", "theme1": "managed", "theme2": "2401000",
+                         "theme3": "sbs_sx", "theme4": "2421000", "species": "SX"}])
+    cc = _clearcut_event(events, inv, 120, harvest_acode="cc")
+    assert cc.iloc[-1]["disturbance_type"] == "cc"
+    legacy = _clearcut_event(events, inv, 120)
+    assert legacy.iloc[-1]["disturbance_type"] == "harvest"

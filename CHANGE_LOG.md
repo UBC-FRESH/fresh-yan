@@ -1,3 +1,95 @@
+# 2026-10-13 — Five-TSA grid wave complete + cross-TSA flip analysis (#3)
+
+- All five emission-minimizing grids finished (identical 25 x 200, HiGHS; 5,000 cells
+  each; 8-14 workers per TSA, ~12 h wall on the shared box). Validation: unique
+  (df, hl) keys, no NaNs, no cell over the base scenario, cross-file emission sums
+  exact, provenance `1f50ce4`. Records commit `4eb3e71` (~44 MB per TSA).
+- Cross-TSA flip characterization (`scripts/cross_tsa_analysis.py`; `results/cross-tsa/`,
+  commit `40d115d`): df50(hl=100) spans 0.95 (tsa08) to 1.61 (tsa24); grid maxima
+  0.57-0.78 of each unit's base-scenario volume. tsa16 is the outlier: 1,446/5,000
+  cells are full-cessation optima (zero harvest) for df <= ~0.5, sharing the exact
+  no-harvest emission (-3.856e8 tCO2) - the strongest form of the flip in the set;
+  tsa08 never fully stops (min 25.3M m3).
+
+# 2026-10-13 — Adversarial audit remediation (code + manuscript)
+
+- Third adversarial audit (`/tmp/opencode/audit_code_manuscript.md`) re-solved four
+  committed grid cells end-to-end (exact harvest; ~1e-16 relative emission agreement)
+  and reproduced all cross-TSA numbers, the ledger identity, and the 25,000-cell QA;
+  it found packaging defects, all now fixed:
+  - manuscript: fatal preamble corruption (duplicated AI declaration) removed - build
+    is clean (0 errors); "(CITATION)" placeholders replaced with real citations;
+    units-table "Initial C" now traceable (`results/cross-tsa/five_tsa_attributes.csv`,
+    period-0 inventory 353.9/296.6/703.4/223.0/160.9 MtC); no-harvest convergence
+    wording corrected to the actual per-unit matrix; df50 range, harvested-area ratio,
+    age-structure shares, conclusion range wording, highlights, and legacy scoping of
+    the max-harvest comparison fixed; `leskinen2018` added to the bibliography.
+  - fresh-yan: `scripts/five_tsa_figures.py` writes the attributes record (curves
+    plugged - the silent-zero class caught in the audit); `scripts/cross_tsa_analysis.py`
+    outputs carry provenance; new `scripts/reset_residuals.py` (per-unit residual +
+    phantom-carbon record; running); records-tests cover the femic campaign; `hwp.py`
+    carries a superseded banner; `REPRODUCIBILITY.md` rewritten with the five-TSA
+    commands and current numbers; `manuscript-handoff.md` refreshed.
+- Pending: reset-residual and robustness records (background), the two manuscript
+  sentences that cite them, and PR merges before the Zenodo release (main is stale).
+
+# 2026-10-12 — Femic curve generation: `cc` acodes + transition-graph classification (#3)
+
+- Fixed three hardcoded `"harvest"` acodes that broke (or silently zeroed) the femic
+  `cc` models: `curves._clearcut_event` now writes the model's stand-replacing action
+  as the SIT `disturbance_type` id (was `"harvest"`, undefined in the `cc`/`fire`
+  mapping, so every managed curve crashed); `accounting._harvest_area` and
+  `_period_inflows` identify harvest actions via the model's `is_harvest` flags
+  (was a fixed acode, silently zeroing HWP inflows); `scenario.compile_scenario` takes
+  `harvest_acode` (was zeroing the harvested-area/volume columns for `cc` models).
+- `model.to_cbm_sit` clamps tiny negative yield artifacts from ws3's SIT conversion
+  to 0 (the TSA 41 export hits -8.9e-16 at an age class and fails libCBM's parser);
+  genuinely negative yields raise instead of being silently clamped.
+- Curve dtype classification now follows the model's transition graph
+  (`curves._regeneration_sources`): every harvest-transition target gets a
+  simulated-clearcut (cycle) curve, with the natural parent as the pre-harvest source in
+  the legacy sections and the dtype itself in models that regenerate in place (femic:
+  all 27 THLB dtypes, including 11 natural-curve targets that previously got spun-up
+  curves and with them the post-reset DOM inconsistency). Legacy regeneration nodes and
+  parents are unchanged (regenerated managed dtype reproduces the committed pickle with
+  max abs diff 0).
+- Regression tests: `tests/test_curves.py` (event id follows the acode),
+  `tests/test_accounting.py` (harvest area follows `is_harvest`),
+  `tests/test_model.py` (legacy regeneration graph).
+- All five femic instances materialized from the new Arbutus cloud and updated to the
+  p113_5 "campaign config" re-export (THLB-filtered `.are`, period-age-fixed `.yld`,
+  reference baselines in `evidence/campaign_baseline_2026-10-12/`); pins and notes in
+  `planning/multi-tsa-extension.md`. Curve regeneration for the five-TSA campaign runs
+  on the fixed path.
+- Generated the campaign carbon curves for all five instances (`curves/femic-tsa<code>/`;
+  32/49/27/30/38 regeneration-target dtypes; provenance pinned to `b4bad00`/`df83ab6`).
+  QA and the tsa08 slow-pool residual note in `planning/multi-tsa-extension.md`.
+- `base_scenario.solve` now threads `harvest_acode` into `gen_scenario` (the default
+  `harvest` silently zeroed the base-scenario LP on `cc` models - caught by the
+  zero-harvest first run); `gen_scenario` raises on an acode absent from the model.
+  The five femic base scenarios were regenerated with nonzero harvest.
+- `cbm.plugin_c_curves` now mirrors ws3's yield-mask matching instead of requiring the
+  legacy `('?','?',AU,'?',curve)` mask: femic `export ws3-sections` sections register
+  yields under the full dtype key, so the old lookup silently skipped every dtype,
+  zeroing all carbon columns and the grid objective (caught in the tsa24 grid pilot -
+  5,000 degenerate cells). Plugged curves verified against the pickles; regression
+  test with the femic-style fixture; base records and grids regenerated.
+
+# 2026-10-12 — Multi-TSA parameterization + femic section support (#3)
+
+- The pipeline runs per management unit: `--tsa/--model-name/--model-path/--curves-dir`
+  across the CLI and FreshForge provider nodes; `curves/<tsa>` and `results/<tsa>/...`
+  defaults; a `tsa` provenance column on records.
+- Femic `export ws3-sections` exports are consumable directly: `--section-units periods`
+  applies ws3's period-to-years conversion on import (`.are` ages, `.act` timing,
+  `.yld` ages), and `--harvest-acode` selects the stand-replacing action (`harvest`
+  for the legacy TSA 24 sections; `cc` for femic exports).
+- Curve generation writes `provenance.json`; provenance is captured before the
+  generated files are written so `fy_commit` is not polluted by the outputs themselves.
+- Verified against the public TSA29 femic export and the wbi-birds `tsa24_clipped`
+  fixture; findings and the five-TSA campaign checklist in
+  `planning/multi-tsa-extension.md`.
+
 # 2026-10-11 — Corrected trade-off grid records + adversarial audit (#1)
 
 - Generated the full corrected trade-off grid: 5,000 scenarios (25 displacement

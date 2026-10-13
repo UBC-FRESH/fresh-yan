@@ -11,7 +11,12 @@ from __future__ import annotations
 import pytest
 import ws3.opt
 
-from fresh_yan.accounting import cmp_c_ce_v2, track_system_emission_v2, track_system_stock_v2
+from fresh_yan.accounting import (
+    _harvest_area,
+    cmp_c_ce_v2,
+    track_system_emission_v2,
+    track_system_stock_v2,
+)
 from fresh_yan.cbm import plugin_c_curves
 from fresh_yan.model import build_model, load_curves, sum_fluxes, sum_pools
 from fresh_yan.tradeoff_grid import (
@@ -131,3 +136,17 @@ def test_lp_objective_equals_reported_tracker(fm_lp) -> None:
     total = float(emission["system"].sum())
     assert problem.z() == pytest.approx(-total, rel=1e-9)
     assert total == pytest.approx(-1_586_066_278.97, rel=1e-6)
+
+
+def test_harvest_area_follows_is_harvest_flags() -> None:
+    """Harvest areas are found via ``is_harvest`` flags, not a hardcoded acode (#3)."""
+
+    class _StubFM:
+        def __init__(self):
+            self.applied_actions = {1: {"null": {}, "cc": {("dtk",): {0: (7.0,)}}}}
+
+        def is_harvest(self, acode):
+            return acode == "cc"
+
+    assert _harvest_area(_StubFM(), 1, ("dtk",), 0) == 7.0
+    assert _harvest_area(_StubFM(), 1, ("dtk",), 5) == 0.0
