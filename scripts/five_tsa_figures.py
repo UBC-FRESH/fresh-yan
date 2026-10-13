@@ -1,0 +1,105 @@
+"""Build the five-unit manuscript figures: study-area map, age structure, species mix.
+
+Reads each femic instance's ws3 area section (``.are``) and boundary feather and writes:
+
+- ``five_tsa_map.pdf``       the five TSA boundaries, labelled
+- ``five_unit_age.pdf``      area by age class, as % of each unit's landbase (5 panels)
+- ``five_unit_species.pdf``  area by leading-species code, as % of landbase (5 panels)
+
+Usage:
+    python scripts/five_tsa_figures.py --instances-root <femic/external> --out-dir <dir>
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+
+import geopandas as gpd
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+from shapely import wkb
+
+TSAS = ["08", "16", "24", "40", "41"]
+SPECIES_NAMES = {
+    "pl": "Lodgepole pine", "sx": "Hybrid spruce", "sw": "White spruce",
+    "sb": "Black spruce", "se": "Engelmann spruce", "bl": "Subalpine fir",
+    "at": "Trembling aspen", "fdi": "Douglas-fir",
+}
+
+
+def read_are(path: str) -> pd.DataFrame:
+    rows = []
+    with open(path) as fh:
+        for line in fh:
+            p = line.split()
+            if len(p) >= 8 and p[0] == "*A":
+                rows.append((p[4], int(p[6]), float(p[7])))
+    df = pd.DataFrame(rows, columns=["stratum", "age", "area"])
+    df["sp"] = df.stratum.str.split("_").str[-1].str.replace("pli", "pl", regex=False)
+    return df
+
+
+def read_boundary(path: str):
+    df = pd.read_feather(path)
+    geom = df.geometry.iloc[0]
+    return wkb.loads(bytes(geom)) if isinstance(geom, (bytes, bytearray)) else geom
+
+
+def main(instances_root: str, out_dir: str) -> None:
+    os.makedirs(out_dir, exist_ok=True)
+
+    # --- study-area map ---
+    fig, ax = plt.subplots(figsize=(7.0, 6.0))
+    for s in TSAS:
+        geom = read_boundary(
+            os.path.join(instances_root, f"femic-tsa{s}-instance/data/tsa_boundaries.feather"))
+        gpd.GeoSeries([geom]).plot(ax=ax, alpha=0.35, edgecolor="black", linewidth=0.8)
+        c = geom.representative_point()
+        ax.annotate(f"TSA {s}", (c.x, c.y), ha="center", va="center", fontsize=9)
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
+    ax.set_title("The five management units")
+    fig.savefig(os.path.join(out_dir, "five_tsa_map.pdf"), bbox_inches="tight")
+    plt.close(fig)
+
+    # --- age + species panels ---
+    fig_age, axes_age = plt.subplots(1, 5, figsize=(13, 2.8), sharey=False)
+    fig_sp, axes_sp = plt.subplots(1, 5, figsize=(13, 2.8), sharey=False)
+    for ax_a, ax_s, s in zip(axes_age, axes_sp, TSAS, strict=True):
+        df = read_are(os.path.join(
+            instances_root, f"femic-tsa{s}-instance/output/ws3/tsa{s}.are"))
+        total = df.area.sum()
+        age = df.groupby("age").area.sum() / total * 100
+        ax_a.bar((age.index * 10 + 5), age.values, width=8, color="0.3")
+        ax_a.set_title(f"TSA {s}", fontsize=9)
+        ax_a.set_xlabel("Age (yr)", fontsize=8)
+        ax_a.tick_params(labelsize=7)
+        sp = df.groupby("sp").area.sum() / total * 100
+        sp = sp.sort_values(ascending=False).head(6)
+        ax_s.bar(range(len(sp)), sp.values, color="0.3")
+        ax_s.set_xticks(range(len(sp)))
+        ax_s.set_xticklabels([SPECIES_NAMES.get(k.split("+")[0], k) for k in sp.index],
+                             rotation=45, ha="right", fontsize=6.5)
+        ax_s.set_title(f"TSA {s}", fontsize=9)
+        ax_s.set_xlabel("Leading species", fontsize=8)
+        ax_s.tick_params(labelsize=7)
+    axes_age[0].set_ylabel("% of landbase", fontsize=8)
+    axes_sp[0].set_ylabel("% of landbase", fontsize=8)
+    fig_age.suptitle("Age structure of the five model instances", fontsize=10)
+    fig_sp.suptitle("Leading-species composition of the five model instances", fontsize=10)
+    fig_age.savefig(os.path.join(out_dir, "five_unit_age.pdf"), bbox_inches="tight")
+    fig_sp.savefig(os.path.join(out_dir, "five_unit_species.pdf"), bbox_inches="tight")
+    plt.close("all")
+    print(f"Wrote five-unit figures to {out_dir}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--instances-root", required=True)
+    parser.add_argument("--out-dir", default="results/cross-tsa/figures")
+    args = parser.parse_args()
+    main(args.instances_root, args.out_dir)
