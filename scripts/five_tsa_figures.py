@@ -111,8 +111,10 @@ def main(instances_root: str, out_dir: str) -> None:
                      "dev_types": len(fm.dtypes),
                      "initial_eco_mtc": float(fm.inventory(0, "ecosystem")) / 1e6})
     with_provenance(pd.DataFrame(rows)).to_csv(
-        os.path.join(out_dir, "five_tsa_attributes.csv"), index=False)
-    print(f"Wrote five-unit figures and attributes to {out_dir}")
+        os.path.join(os.path.dirname(os.path.normpath(out_dir)),
+                     "five_tsa_attributes.csv"), index=False)
+    print(f"Wrote five-unit figures to {out_dir} and the attributes record to "
+          f"{os.path.dirname(os.path.normpath(out_dir))}")
 
 
 if __name__ == "__main__":
