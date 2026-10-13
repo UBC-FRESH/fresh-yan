@@ -29,15 +29,60 @@ the replay harness is faithful and only needs packaging into records.
    **stocks** (ecosystem/biomass/DOM) against the libCBM run, as in the no-harvest
    comparison.
 
-## Remaining implementation (this branch)
+## Derived decomposition (2026-10-13, later)
 
-- `scripts/replay_validation.py`: build model + curves; solve the base scenario; emit
-  cohort events per (dtk, age, area, period) with the rules above; run libCBM
-  (`sit_transitions` emptied); verify the area ledger from the state table; compare
-  per-period stocks vs `fm.inventory(...)`; write provenance records per unit
-  (`results/femic-tsa<code>/replay/`).
-- Then: five units, figures (ws3 vs libCBM under active harvest), manuscript updates
-  (replace the "future work" scope with the corrected harvested-landscape validation).
+Key-agnostic cohort matching (libCBM identifiers paired to ws3 cohorts by exact area
+within dtype; libCBM per-identifier areas read from ``cbm_vars.inventory["area"]`` via a
+wrapped reporting function; ws3 area tables self-checked against
+``fm.inventory(period, "biomass")`` to 0.3%) gives a deterministic decomposition:
+
+- **Same cohorts, same areas.** For every sampling tested, the unmatched area totals are
+  *identical on both sides* (e.g. p=1: 588,469 ha on each side - area-tie artifacts of
+  the matcher, not missing stands). Every cohort appears in both accounts.
+- **A uniform -1-year age offset identifies the sampling.** At p=1 the pairs carry
+  ``age_cbm - age_ws3 = -1`` uniformly at t=9, and ``frac(age match) = 0.94`` at **t=10**;
+  the age-exact pairing is t = 10p (end of period, the convention documented in the
+  curve-generation note), not the start-of-period sample used by
+  ``compare_ws3_libcbm`` (``iloc[1::10]`` -> t = 10(p-1)+1).
+- **At the age-exact pairing the biomass gap is +3.3%** (p=1, paired 2.43M ha:
+  ws3 149.43 vs libCBM 144.63 e6 tC) - the same order as the no-harvest agreement
+  (3.84% mean) and consistent with the audited bounds (curve simplification <=1.4%;
+  first-rotation vs cycle residual <=~1.6% of landscape C; both documented in
+  ``planning/curve-generation-and-reset-findings.md``).
+- **The 14-38% aggregates are a comparison-sampling artifact.** Sampling t at
+  start-of-period vs end-of-period changes the aggregate gap by factors of 2-3
+  (p=1: +2.6% at t=9, +7.4% at t=11 with fixed pair sets); the old comparison's
+  sampling lands where biomass has just been cut and not yet regrown - maximal
+  divergence under harvest, negligible under no-harvest (why the no-harvest comparison
+  was insensitive and the harvested one was not).
+- **No hardwood anomaly exists**: the matched set spans all dtypes uniformly; the
+  earlier "hardwood" suspicion came from an inconclusive single test and the
+  fire-count pattern (a stand-splitting artifact) and is retracted.
+
+Consequences: (1) the harvested-landscape comparison must sample at t = 10p (age-exact)
+and use a tie-robust cohort matcher (area-only matching degenerates at late periods as
+multi-rotation splits create duplicate area values); (2) the replay's structural
+agreement is ~few %, so the manuscript's harvested-landscape validation can report
+O(3-5%) stock agreement once the comparison convention is fixed; (3) nothing in the
+14-38% was structural - it is entirely bookkeeping (sampling convention).
+
+## Status after the first harness run (2026-10-13)
+
+- `scripts/replay_validation.py` runs end-to-end; TSA 24 records in
+  `results/femic-tsa24/replay/` (cbm/ws3 per-period stocks, pct diffs, figures).
+- **Single-cut end-to-end test** (softwood dtype 2401000, one scheduled cut at a real
+  cohort age): ws3 and libCBM cut effects agree on biomass (-0.382 vs -0.388e6 tC,
+  ~1.5%), and the ecosystem effect converges as the slash/DOM transition settles.
+  The per-cut bookkeeping is exact.
+- **Landscape-level comparison** still shows a residual divergence under active
+  harvest (biomass 14-38% mean vs 3.84% in the no-harvest comparison; grows with
+  cumulative harvest, insensitive to start- vs end-of-period sampling). Open
+  suspects, in order: (1) hardwood-tagged dtypes' stand age/tsl initialization (the
+  hardwood single-cut test was inconclusive - needs a no-cut-baseline comparison);
+  (2) the documented first-rotation vs rotation-cycle residual compounding over the
+  ~2 rotations (6.85M ha cut on a 3.31M ha landscape); (3) multi-rotation area
+  bookkeeping on the ws3 side. **Do not use the harness for manuscript numbers until
+  this is closed.**
 
 Evidence scratch (session): `/tmp/opencode/replay_test2.py`, `debug_missing.py`,
 `debug_full.py`, `calib_managed_ages.py`, `debug_tsl.py`, `debug_species_ages.py`.
