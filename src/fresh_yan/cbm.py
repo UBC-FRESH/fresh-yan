@@ -49,56 +49,71 @@ def run_cbm(sit_config, sit_tables, n_steps):
 
 
 def plugin_c_curves(fm, c_curves_p, c_curves_f, pools, fluxes):
+    """Plug the generated carbon yield curves into the model's dtypes.
+
+    Works for both section-export layouts: legacy TSA 24 sections (yields registered
+    under ``('?', '?', AU, '?', curve)`` wildcard masks) and femic ``export
+    ws3-sections`` exports (yields registered under the full dtype key).
+    """
     # Dictionary to track registered curves for each dtype_key
     registered_curves = {}
 
     for dtype_key in fm.dtypes:
         dt = fm.dt(dtype_key)
-        mask = ('?', '?', dtype_key[2], '?', dtype_key[4])
 
+        # Locate the yield entry to plug the carbon curves into.  Mirror ws3's own mask
+        # matching and prefer the most specific entry that carries curves.
+        target = None
+        best_wild = None
         for _mask, _ytype, curves in fm.yields:
-            if _mask != mask:
-                continue  # Only proceed if the mask matches
+            if not curves or not fm.match_mask(_mask, dtype_key):
+                continue
+            wild = sum(1 for m in _mask if m == '?')
+            if best_wild is None or wild < best_wild:
+                best_wild, target = wild, (_mask, _ytype, curves)
+        if target is None:
+            raise ValueError(
+                f"no yield registry entry with curves for dtype {' '.join(dtype_key)}")
+        _mask, _ytype, curves = target
+        print('found match for mask', _mask, flush=True)
 
-            print('found match for mask', mask)
+        # Initialize the tracking of registered curves for the dtype_key if not already done
+        if dtype_key not in registered_curves:
+            registered_curves[dtype_key] = set()
 
-            # Initialize the tracking of registered curves for the dtype_key if not already done
-            if dtype_key not in registered_curves:
-                registered_curves[dtype_key] = set()
+        # Register pool curves
+        pool_data = c_curves_p.loc[' '.join(dtype_key)]
+        for yname in pools:
+            if yname not in registered_curves[dtype_key]:  # skip if already registered
+                points = list(zip(pool_data.index.values, pool_data[yname], strict=False))
+                curve = fm.register_curve(ws3.core.Curve(yname,
+                                                         points=points,
+                                                         type='a',
+                                                         is_volume=False,
+                                                         xmax=fm.max_age,
+                                                         period_length=fm.period_length))
+                curves.append((yname, curve))
+                dt.add_ycomp('a', yname, curve)
 
-            # Register pool curves
-            pool_data = c_curves_p.loc[' '.join(dtype_key)]
-            for yname in pools:
-                if yname not in registered_curves[dtype_key]:  # skip if already registered
-                    points = list(zip(pool_data.index.values, pool_data[yname], strict=False))
-                    curve = fm.register_curve(ws3.core.Curve(yname,
-                                                             points=points,
-                                                             type='a',
-                                                             is_volume=False,
-                                                             xmax=fm.max_age,
-                                                             period_length=fm.period_length))
-                    curves.append((yname, curve))
-                    dt.add_ycomp('a', yname, curve)
+                # Mark the curve as registered
+                registered_curves[dtype_key].add(yname)
 
-                    # Mark the curve as registered
-                    registered_curves[dtype_key].add(yname)
+        # Register flux curves
+        flux_data = c_curves_f.loc[' '.join(dtype_key)]
+        for yname in fluxes:
+            if yname not in registered_curves[dtype_key]:  # skip if already registered
+                points = list(zip(flux_data.index.values, flux_data[yname], strict=False))
+                curve = fm.register_curve(ws3.core.Curve(yname,
+                                                         points=points,
+                                                         type='a',
+                                                         is_volume=False,
+                                                         xmax=fm.max_age,
+                                                         period_length=fm.period_length))
+                curves.append((yname, curve))
+                dt.add_ycomp('a', yname, curve)
 
-            # Register flux curves
-            flux_data = c_curves_f.loc[' '.join(dtype_key)]
-            for yname in fluxes:
-                if yname not in registered_curves[dtype_key]:  # skip if already registered
-                    points = list(zip(flux_data.index.values, flux_data[yname], strict=False))
-                    curve = fm.register_curve(ws3.core.Curve(yname,
-                                                             points=points,
-                                                             type='a',
-                                                             is_volume=False,
-                                                             xmax=fm.max_age,
-                                                             period_length=fm.period_length))
-                    curves.append((yname, curve))
-                    dt.add_ycomp('a', yname, curve)
-
-                    # Mark the curve as registered
-                    registered_curves[dtype_key].add(yname)
+                # Mark the curve as registered
+                registered_curves[dtype_key].add(yname)
 
 
 def compare_ws3_libcbm(

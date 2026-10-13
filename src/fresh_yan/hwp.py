@@ -1,7 +1,11 @@
-"""Harvested wood product (HWP) carbon accounting helpers.
+"""Legacy (superseded) harvested wood product (HWP) carbon accounting helpers.
 
-Net system carbon stock / emission coefficient functions and trackers (HWP
-first-order decay with half-lives, displacement factors), extracted from
+Superseded by the corrected accounting in :mod:`fresh_yan.accounting` (stock-difference
+ecosystem term, curve-derived product inflows, exact per-period survival). Retained for
+reference only; nothing in this package imports this module.
+
+Historical description: net system carbon stock / emission coefficient functions and
+trackers (HWP first-order decay with half-lives, displacement factors), extracted from
 ``msc_walter_yan/util.py`` so this package is self-contained.
 
 Conventions

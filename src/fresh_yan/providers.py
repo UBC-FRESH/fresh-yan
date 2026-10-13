@@ -29,21 +29,24 @@ _NODE_TYPES = (
         name="Generate carbon yield curves",
         description=("Managed curves from simulated clearcuts (rotation-cycle equilibrium); "
                      "natural curves from the spun-up no-harvest trajectories."),
-        parameters=("out_dir", "rotation_age", "n_steps", "mode"),
+        parameters=("out_dir", "rotation_age", "n_steps", "mode", "tsa", "model_name",
+                    "model_path", "section_units", "harvest_acode"),
         artifacts=("curves_p", "curves_f"),
     ),
     NodeTypeMetadata(
         id="no_harvest",
         name="No-harvest comparison records",
         description="ws3 carbon yield-curve landscape vs a direct libCBM run (no harvest).",
-        parameters=("out_dir",),
+        parameters=("out_dir", "tsa", "model_name", "model_path", "curves_dir",
+                    "section_units", "harvest_acode"),
         artifacts=("cbm_csv", "ws3_csv", "pct_diff_csv", "summary_csv", "figures"),
     ),
     NodeTypeMetadata(
         id="base_scenario",
         name="Base scenario records",
         description="Maximize even-flow harvest volume over the 200-year horizon.",
-        parameters=("out_dir", "solver"),
+        parameters=("out_dir", "solver", "tsa", "model_name", "model_path", "curves_dir",
+                    "section_units", "harvest_acode"),
         artifacts=("records_csv", "figure"),
     ),
     NodeTypeMetadata(
@@ -51,7 +54,9 @@ _NODE_TYPES = (
         name="Trade-off grid records",
         description=("Emission-minimizing scenarios over (displacement factor, solid-wood "
                      "half-life) on the corrected accounting."),
-        parameters=("out_dir", "displacements", "half_lives", "workers", "solver"),
+        parameters=("out_dir", "displacements", "half_lives", "workers", "solver", "tsa",
+                    "model_name", "model_path", "curves_dir", "section_units",
+                    "harvest_acode"),
         artifacts=("harvest_csv", "stock_csv", "emission_csv", "summary_csv"),
     ),
     NodeTypeMetadata(
@@ -109,6 +114,14 @@ class PipelineProvider:
     ) -> tuple[Diagnostic, ...]:
         params = dict(node.parameters or {})
         diagnostics: list[Diagnostic] = []
+        model_path = params.get("model_path")
+        if model_path and not Path(model_path).exists():
+            diagnostics.append(Diagnostic(
+                severity=DiagnosticSeverity.ERROR,
+                code="fresh_yan.model_path",
+                message=f"model_path does not exist: {model_path}",
+                location=location,
+            ))
         if node_type.id == "generate_curves":
             mode = str(params.get("mode", "cycle"))
             if mode not in ("single", "cycle"):
@@ -192,12 +205,19 @@ class PipelineProvider:
         self, node: Any, params: dict[str, Any], context: Any
     ) -> ProviderRunResult:
         from .curves import generate
+        from .model import curves_dir_for
 
-        out_dir = context.resolve_path(params.get("out_dir", "curves"))
+        tsa = str(params.get("tsa", "tsa24"))
+        out_dir = context.resolve_path(curves_dir_for(tsa, params.get("out_dir")))
         generate(str(out_dir),
                  rotation_age=_int(params, "rotation_age", 120),
                  n_steps=_int(params, "n_steps", 700),
-                 mode=str(params.get("mode", "cycle")))
+                 mode=str(params.get("mode", "cycle")),
+                 tsa=tsa,
+                 model_name=params.get("model_name"),
+                 model_path=params.get("model_path"),
+                 section_units=str(params.get("section_units", "years")),
+                 harvest_acode=str(params.get("harvest_acode", "harvest")))
         return ProviderRunResult(
             status=RunStatus.SUCCESS,
             outputs={"curves_dir": str(out_dir)},
@@ -208,10 +228,16 @@ class PipelineProvider:
         )
 
     def _no_harvest(self, node: Any, params: dict[str, Any], context: Any) -> ProviderRunResult:
+        from .model import record_dir_for
         from .noharvest import generate
 
-        out_dir = context.resolve_path(params.get("out_dir", "results/no_harvest"))
-        generate(str(out_dir))
+        tsa = str(params.get("tsa", "tsa24"))
+        out_dir = context.resolve_path(record_dir_for(tsa, "results/no_harvest",
+                                                      params.get("out_dir")))
+        generate(str(out_dir), tsa=tsa, model_name=params.get("model_name"),
+                 model_path=params.get("model_path"), curves_dir=params.get("curves_dir"),
+                 section_units=str(params.get("section_units", "years")),
+                 harvest_acode=str(params.get("harvest_acode", "harvest")))
         return ProviderRunResult(
             status=RunStatus.SUCCESS,
             outputs={"records_dir": str(out_dir)},
@@ -226,9 +252,16 @@ class PipelineProvider:
 
     def _base_scenario(self, node: Any, params: dict[str, Any], context: Any) -> ProviderRunResult:
         from .base_scenario import generate
+        from .model import record_dir_for
 
-        out_dir = context.resolve_path(params.get("out_dir", "results/base_scenario"))
-        generate(str(out_dir), solver=str(params.get("solver", "highs")))
+        tsa = str(params.get("tsa", "tsa24"))
+        out_dir = context.resolve_path(record_dir_for(tsa, "results/base_scenario",
+                                                      params.get("out_dir")))
+        generate(str(out_dir), solver=str(params.get("solver", "highs")), tsa=tsa,
+                 model_name=params.get("model_name"), model_path=params.get("model_path"),
+                 curves_dir=params.get("curves_dir"),
+                 section_units=str(params.get("section_units", "years")),
+                 harvest_acode=str(params.get("harvest_acode", "harvest")))
         return ProviderRunResult(
             status=RunStatus.SUCCESS,
             outputs={"records_dir": str(out_dir)},
@@ -239,14 +272,23 @@ class PipelineProvider:
         )
 
     def _trade_off_grid(self, node: Any, params: dict[str, Any], context: Any) -> ProviderRunResult:
+        from .model import record_dir_for
         from .tradeoff_grid import generate
 
-        out_dir = context.resolve_path(params.get("out_dir", "results/tradeoff_grid"))
+        tsa = str(params.get("tsa", "tsa24"))
+        out_dir = context.resolve_path(record_dir_for(tsa, "results/tradeoff_grid",
+                                                      params.get("out_dir")))
         generate(str(out_dir),
                  displacements=_float_list(params, "displacements"),
                  half_lives=_int_list(params, "half_lives"),
                  workers=_int(params, "workers", 1),
-                 solver=str(params.get("solver", "highs")))
+                 solver=str(params.get("solver", "highs")),
+                 tsa=tsa,
+                 model_name=params.get("model_name"),
+                 model_path=params.get("model_path"),
+                 curves_dir=params.get("curves_dir"),
+                 section_units=str(params.get("section_units", "years")),
+                 harvest_acode=str(params.get("harvest_acode", "harvest")))
         return ProviderRunResult(
             status=RunStatus.SUCCESS,
             outputs={"records_dir": str(out_dir)},

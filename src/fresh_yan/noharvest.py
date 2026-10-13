@@ -15,10 +15,12 @@ from .cbm import compare_ws3_libcbm, plugin_c_curves, run_cbm
 from .model import (
     biomass_pools,
     build_model,
+    curves_dir_for,
     disturbance_type_mapping,
     dom_pools,
     gross_growth,
     load_curves,
+    model_paths,
     sum_fluxes,
     sum_pools,
     to_cbm_sit,
@@ -38,17 +40,24 @@ def pct_diff(df_ws3: pd.DataFrame, df_cbm: pd.DataFrame, timestep: str = "period
     return diff.reset_index()
 
 
-def generate(out_dir: str = "results/no_harvest") -> None:
+def generate(out_dir: str = "results/no_harvest", tsa: str = "tsa24",
+             model_name: str | None = None, model_path: str | None = None,
+             curves_dir: str | None = None, section_units: str = "years",
+             harvest_acode: str = "harvest") -> None:
     """Generate the no-harvest comparison records (CSVs and figures)."""
-    fm = build_model()
-    mapping = disturbance_type_mapping(fm)
+    model_name, model_path = model_paths(tsa, model_name, model_path)
+    curves_dir = curves_dir_for(tsa, curves_dir)
+    fm = build_model(model_name=model_name, model_path=model_path,
+                     section_units=section_units)
+    mapping = disturbance_type_mapping(fm, harvest_acode=harvest_acode)
     sit_config, sit_tables = to_cbm_sit(fm, mapping)
 
     # libCBM: real landscape inventory, no-harvest dynamics over the model horizon
     cbm_output = run_cbm(sit_config, sit_tables, n_steps=fm.horizon * fm.period_length)
 
     # ws3: plug in the carbon yield curves and compile landscape carbon indicators
-    c_curves_p, c_curves_f = load_curves()
+    c_curves_p, c_curves_f = load_curves(os.path.join(curves_dir, "c_curves_p.pkl"),
+                                         os.path.join(curves_dir, "c_curves_f.pkl"))
     plugin_c_curves(fm, c_curves_p, c_curves_f, sum_pools, sum_fluxes)
 
     os.makedirs(out_dir, exist_ok=True)
@@ -70,10 +79,13 @@ def generate(out_dir: str = "results/no_harvest") -> None:
         .reset_index()
     )
 
-    with_provenance(df_cbm).to_csv(os.path.join(out_dir, "no_harvest_cbm.csv"), index=False)
-    with_provenance(df_ws3).to_csv(os.path.join(out_dir, "no_harvest_ws3.csv"), index=False)
-    with_provenance(df_diff).to_csv(os.path.join(out_dir, "no_harvest_pct_diff.csv"), index=False)
-    with_provenance(summary).to_csv(
+    with_provenance(df_cbm, tsa=tsa).to_csv(
+        os.path.join(out_dir, "no_harvest_cbm.csv"), index=False)
+    with_provenance(df_ws3, tsa=tsa).to_csv(
+        os.path.join(out_dir, "no_harvest_ws3.csv"), index=False)
+    with_provenance(df_diff, tsa=tsa).to_csv(
+        os.path.join(out_dir, "no_harvest_pct_diff.csv"), index=False)
+    with_provenance(summary, tsa=tsa).to_csv(
         os.path.join(out_dir, "no_harvest_pct_diff_summary.csv"), index=False)
 
     print(f"Wrote no-harvest comparison records to {out_dir}")

@@ -3,8 +3,10 @@
 Objective and constraint coefficient functions, scenario compilation, and problem
 construction, extracted from ``msc_walter_yan/util.py`` so this package is
 self-contained. The base (max even-flow harvest) scenario maximizes harvest volume
-via ``cmp_c_z``; the harvest action must be flagged (``fm.actions["harvest"].is_harvest
-= True``) for the coefficients to compile (see ``generate_c_curves_tsa24.ipynb`` cell 40).
+via ``cmp_c_z``; the harvest action must be flagged (``fm.actions[<acode>].is_harvest
+= True``, where ``<acode>`` is ``harvest`` for the legacy TSA 24 sections or ``cc`` for
+femic exports) for the coefficients to compile (see ``generate_c_curves_tsa24.ipynb``
+cell 40).
 """
 
 from __future__ import annotations
@@ -73,9 +75,12 @@ def cmp_c_ci(fm, path, yname, mask=None): # product, named actions
     return result
 
 
-def compile_scenario(fm):
-    oha = [fm.compile_product(period, '1.', acode='harvest') for period in fm.periods]
-    ohv = [fm.compile_product(period, 'totvol * 0.85', acode='harvest') for period in fm.periods]
+def compile_scenario(fm, harvest_acode='harvest'):
+    """Per-period scenario indicators; ``harvest_acode`` is the stand-replacing action."""
+    oha = [fm.compile_product(period, '1.', acode=harvest_acode)
+           for period in fm.periods]
+    ohv = [fm.compile_product(period, 'totvol * 0.85', acode=harvest_acode)
+           for period in fm.periods]
     ogs = [fm.inventory(period, 'totvol') for period in fm.periods]
     ocp = [fm.inventory(period, 'ecosystem') for period in fm.periods]
     ocf = [fm.inventory(period, 'total_emission') for period in fm.periods]
@@ -137,6 +142,11 @@ def gen_scenario(fm, name='base', util_rate=0.85, harvest_acode='harvest',
     The harvest action must be flagged (``fm.actions[harvest_acode].is_harvest =
     True``) for the objective coefficients (``cmp_c_z``) to compile.
     """
+    if harvest_acode not in fm.actions:
+        raise ValueError(
+            f"harvest_acode {harvest_acode!r} is not an action in the model "
+            f"(actions: {sorted(fm.actions)}); a missing acode silently zeroes the "
+            "harvest coefficients")
     from functools import partial
 
     cflw_ha = cflw_ha or {}

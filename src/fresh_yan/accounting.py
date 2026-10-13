@@ -56,11 +56,17 @@ def _eco_stock(fm: Any, period: int, dtype_key: Any, age: int) -> float:
 
 
 def _harvest_area(fm: Any, period: int, dtype_key: Any, age: int) -> float:
-    """Area harvested at ``(period, dtype_key, age)`` in the current solution."""
-    aa = fm.applied_actions[period].get("harvest")
-    if not aa or dtype_key not in aa or age not in aa[dtype_key]:
-        return 0.0
-    return float(aa[dtype_key][age][0])
+    """Area harvested at ``(period, dtype_key, age)`` in the current solution.
+
+    Harvest actions are identified by the model's ``is_harvest`` flags (``"harvest"``
+    in the legacy TSA 24 model, ``"cc"`` in femic exports), not by a fixed acode.
+    """
+    for acode, aa in fm.applied_actions[period].items():
+        if not fm.is_harvest(acode):
+            continue
+        if dtype_key in aa and age in aa[dtype_key]:
+            return float(aa[dtype_key][age][0])
+    return 0.0
 
 
 def _hwp_inflows(fm: Any, period: int, dtype_key: Any, age: int, util_rate: float,
@@ -114,7 +120,7 @@ def _period_inflows(fm: Any, util_rate: float, proportion_solid_wood: float):
     solid: dict[int, float] = dict.fromkeys(fm.periods, 0.0)
     paper: dict[int, float] = dict.fromkeys(fm.periods, 0.0)
     for dtk, age, _area, acode, period, *_ in fm.compile_schedule():
-        if acode == "harvest":
+        if fm.is_harvest(acode):
             solid_in, paper_in = _hwp_inflows(fm, period, dtk, age, util_rate,
                                               proportion_solid_wood)
             solid[period] += solid_in
