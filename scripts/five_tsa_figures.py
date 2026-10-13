@@ -23,6 +23,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from shapely import wkb
 
+from fresh_yan.model import build_model
+from fresh_yan.records import with_provenance
+
 TSAS = ["08", "16", "24", "40", "41"]
 SPECIES_NAMES = {
     "pl": "Lodgepole pine", "sx": "Hybrid spruce", "sw": "White spruce",
@@ -94,7 +97,22 @@ def main(instances_root: str, out_dir: str) -> None:
     fig_age.savefig(os.path.join(out_dir, "five_unit_age.pdf"), bbox_inches="tight")
     fig_sp.savefig(os.path.join(out_dir, "five_unit_species.pdf"), bbox_inches="tight")
     plt.close("all")
-    print(f"Wrote five-unit figures to {out_dir}")
+
+    # attributes record: reproducible period-0 inventory values (manuscript Table 1)
+    rows = []
+    for s in TSAS:
+        are = read_are(os.path.join(
+            instances_root, f"femic-tsa{s}-instance/output/ws3/tsa{s}.are"))
+        fm = build_model(model_name=f"tsa{s}",
+                         model_path=os.path.join(
+                             instances_root, f"femic-tsa{s}-instance/output/ws3"),
+                         section_units="periods")
+        rows.append({"tsa": f"tsa{s}", "thlb_ha": float(are.area.sum()),
+                     "dev_types": len(fm.dtypes),
+                     "initial_eco_mtc": float(fm.inventory(0, "ecosystem")) / 1e6})
+    with_provenance(pd.DataFrame(rows)).to_csv(
+        os.path.join(out_dir, "five_tsa_attributes.csv"), index=False)
+    print(f"Wrote five-unit figures and attributes to {out_dir}")
 
 
 if __name__ == "__main__":

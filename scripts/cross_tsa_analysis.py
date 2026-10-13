@@ -25,6 +25,8 @@ import matplotlib
 import numpy as np
 import pandas as pd
 
+from fresh_yan.records import with_provenance
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -104,11 +106,11 @@ def main(labels: list[str], results_root: str, out_dir: str) -> None:
               f"grid max frac base={all_max[-1]['grid_max_frac_base']:.3f} | "
               f"df50(hl=100)={thr.loc[thr.half_life == 100, 'df50'].iloc[0]:.2f}")
 
-    pd.concat(all_thr, ignore_index=True).to_csv(
+    with_provenance(pd.concat(all_thr, ignore_index=True)).to_csv(
         os.path.join(out_dir, "cross_tsa_thresholds.csv"), index=False)
-    pd.concat(all_ref, ignore_index=True).to_csv(
+    with_provenance(pd.concat(all_ref, ignore_index=True)).to_csv(
         os.path.join(out_dir, "cross_tsa_reference_cells.csv"), index=False)
-    pd.DataFrame(all_max).to_csv(
+    with_provenance(pd.DataFrame(all_max)).to_csv(
         os.path.join(out_dir, "cross_tsa_grid_maxima.csv"), index=False)
 
     fig, ax = plt.subplots(figsize=(7.5, 4.5))
