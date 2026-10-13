@@ -1,3 +1,16 @@
+# 2026-10-13 — Five-TSA grid wave complete + cross-TSA flip analysis (#3)
+
+- All five emission-minimizing grids finished (identical 25 x 200, HiGHS; 5,000 cells
+  each; 8-14 workers per TSA, ~12 h wall on the shared box). Validation: unique
+  (df, hl) keys, no NaNs, no cell over the base scenario, cross-file emission sums
+  exact, provenance `1f50ce4`. Records commit `4eb3e71` (~44 MB per TSA).
+- Cross-TSA flip characterization (`scripts/cross_tsa_analysis.py`; `results/cross-tsa/`,
+  commit `40d115d`): df50(hl=100) spans 0.95 (tsa08) to 1.61 (tsa24); grid maxima
+  0.57-0.78 of each unit's base-scenario volume. tsa16 is the outlier: 1,446/5,000
+  cells are full-cessation optima (zero harvest) for df <= ~0.5, sharing the exact
+  no-harvest emission (-3.856e8 tCO2) - the strongest form of the flip in the set;
+  tsa08 never fully stops (min 25.3M m3).
+
 # 2026-10-12 — Femic curve generation: `cc` acodes + transition-graph classification (#3)
 
 - Fixed three hardcoded `"harvest"` acodes that broke (or silently zeroed) the femic

@@ -1,8 +1,8 @@
 # Multi-TSA carbon experiment: extension plan and prototype (issue #3)
 
-Status: campaign live (2026-10-12). All five femic instances are materialized from the
-new Arbutus cloud; curve regeneration runs on the fixed acode path (see
-"Materialization and pins" below).
+Status: campaign data complete (2026-10-13). Curves, base scenarios, and all five
+grids are generated and validated; the cross-TSA analysis is the active workstream
+(see "Grid wave below").
 
 ## Purpose
 
@@ -100,8 +100,13 @@ Two findings that matter for the campaign:
   masks (carbon ycomps missing -> zero emissions, degenerate objective; fixed, see
   CHANGE_LOG). A 9-cell mini-grid then validated the fixed path (harvest rises with
   df and hl; all cells unique, emissions non-zero) before relaunching.
-- Full grids (identical 25 x 200, HiGHS) are relaunched for all five TSAs on the fixed
-  plugin; the completion watcher writes `/tmp/opencode/grids_validation.md`.
+- Full grids (identical 25 x 200, HiGHS) ran to completion for all five TSAs
+  (2026-10-13 05:16-05:52; records commit `4eb3e71`) and validate cleanly (unique
+  keys, no NaNs, no cell over base, exact cross-file sums, provenance `1f50ce4`).
+- Cross-TSA first results (`results/cross-tsa/`, commit `40d115d`): df50(hl=100) =
+  0.95 / 1.56 / 1.61 / 1.35 / 1.54 for tsa08/16/24/40/41; grid maxima 0.57-0.78 of
+  base. tsa16 carries a full-cessation region (1,446 cells at zero harvest, df <= ~0.5,
+  all sharing the no-harvest emission), the strongest flip form in the set.
 
 ## Campaign checklist
 
