@@ -11,6 +11,28 @@
   no-harvest emission (-3.856e8 tCO2) - the strongest form of the flip in the set;
   tsa08 never fully stops (min 25.3M m3).
 
+# 2026-10-13 — Adversarial audit remediation (code + manuscript)
+
+- Third adversarial audit (`/tmp/opencode/audit_code_manuscript.md`) re-solved four
+  committed grid cells end-to-end (exact harvest; ~1e-16 relative emission agreement)
+  and reproduced all cross-TSA numbers, the ledger identity, and the 25,000-cell QA;
+  it found packaging defects, all now fixed:
+  - manuscript: fatal preamble corruption (duplicated AI declaration) removed - build
+    is clean (0 errors); "(CITATION)" placeholders replaced with real citations;
+    units-table "Initial C" now traceable (`results/cross-tsa/five_tsa_attributes.csv`,
+    period-0 inventory 353.9/296.6/703.4/223.0/160.9 MtC); no-harvest convergence
+    wording corrected to the actual per-unit matrix; df50 range, harvested-area ratio,
+    age-structure shares, conclusion range wording, highlights, and legacy scoping of
+    the max-harvest comparison fixed; `leskinen2018` added to the bibliography.
+  - fresh-yan: `scripts/five_tsa_figures.py` writes the attributes record (curves
+    plugged - the silent-zero class caught in the audit); `scripts/cross_tsa_analysis.py`
+    outputs carry provenance; new `scripts/reset_residuals.py` (per-unit residual +
+    phantom-carbon record; running); records-tests cover the femic campaign; `hwp.py`
+    carries a superseded banner; `REPRODUCIBILITY.md` rewritten with the five-TSA
+    commands and current numbers; `manuscript-handoff.md` refreshed.
+- Pending: reset-residual and robustness records (background), the two manuscript
+  sentences that cite them, and PR merges before the Zenodo release (main is stale).
+
 # 2026-10-12 — Femic curve generation: `cc` acodes + transition-graph classification (#3)
 
 - Fixed three hardcoded `"harvest"` acodes that broke (or silently zeroed) the femic
