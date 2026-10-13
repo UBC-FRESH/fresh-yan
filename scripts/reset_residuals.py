@@ -26,6 +26,7 @@ import os
 import pandas as pd
 
 from fresh_yan.base_scenario import solve as base_solve
+from fresh_yan.cbm import plugin_c_curves
 from fresh_yan.curves import (
     _clearcut_event,
     _regeneration_sources,
@@ -33,7 +34,14 @@ from fresh_yan.curves import (
     _single_stand_inventory,
     _summarize,
 )
-from fresh_yan.model import build_model, disturbance_type_mapping, to_cbm_sit
+from fresh_yan.model import (
+    build_model,
+    disturbance_type_mapping,
+    load_curves,
+    sum_fluxes,
+    sum_pools,
+    to_cbm_sit,
+)
 from fresh_yan.records import with_provenance
 
 ROTATION_AGE = 120
