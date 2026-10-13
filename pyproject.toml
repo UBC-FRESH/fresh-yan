@@ -44,6 +44,7 @@ dependencies = [
 
 [project.optional-dependencies]
 solvers = ["gurobipy>=13", "pulp>=4"]
+freshforge = ["freshforge>=0.1.0a5"]
 dev = [
   "build>=1.2",
   "pytest>=8",
@@ -58,6 +59,9 @@ Changelog = "https://github.com/UBC-FRESH/fresh-yan/blob/main/CHANGE_LOG.md"
 
 [project.scripts]
 fresh-yan = "fresh_yan.cli:app"
+
+[project.entry-points."freshforge.providers"]
+fresh_yan = "fresh_yan.providers:provider_factory"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

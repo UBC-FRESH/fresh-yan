@@ -7,7 +7,8 @@ import time
 
 import ws3.opt
 
-from .model import build_model
+from .cbm import plugin_c_curves
+from .model import build_model, load_curves, sum_fluxes, sum_pools
 from .records import with_provenance
 from .scenario import compile_scenario, gen_scenario, plot_scenario
 
@@ -40,6 +41,9 @@ def generate(out_dir: str = "results/base_scenario", solver: str = "highs") -> N
     """Generate the base scenario records (CSV + four-panel figure)."""
     fm = build_model()
     fm.actions["harvest"].is_harvest = True  # required for cmp_c_z (notebook cell 40)
+    # Plug in the carbon yield curves so the record's carbon columns are populated.
+    c_curves_p, c_curves_f = load_curves()
+    plugin_c_curves(fm, c_curves_p, c_curves_f, sum_pools, sum_fluxes)
     df, _problem, elapsed = solve(fm, solver=solver)
     os.makedirs(out_dir, exist_ok=True)
     fig, _axes = plot_scenario(df)

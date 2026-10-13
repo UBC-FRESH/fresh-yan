@@ -1,0 +1,25 @@
+workflow:
+  id: fresh_yan_tradeoff_${matrix.case_id}
+  name: Trade-off grid case ${matrix.case_id}
+  description: >-
+    One (displacement factor, solid-wood half-life) case of the trade-off grid, for
+    per-case expansion through a FreshForge run matrix. The full grid runs in one node
+    via workflows/pipeline.yaml (trade_off_grid with the full axes).
+nodes:
+  - id: trade_off_case
+    provider: fresh_yan.pipeline.trade_off_grid
+    name: Trade-off case ${matrix.case_id}
+    parameters:
+      out_dir: results/tradeoff_grid_cases/${matrix.case_id}
+      displacements: ${matrix.displacement}
+      half_lives: ${matrix.half_life}
+      workers: 1
+    outputs:
+      records_dir: results/tradeoff_grid_cases/${matrix.case_id}
+    artifacts:
+      summary_csv: results/tradeoff_grid_cases/${matrix.case_id}/tradeoff_grid_summary.csv
+    provenance:
+      matrix_case: ${matrix.case_id}
+      matrix_namespace: ${matrix.namespace}
+      displacement_factor: ${matrix.displacement}
+      half_life: ${matrix.half_life}
