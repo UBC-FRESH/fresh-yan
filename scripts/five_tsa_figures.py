@@ -23,7 +23,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from shapely import wkb
 
-from fresh_yan.model import build_model
+from fresh_yan.cbm import plugin_c_curves
+from fresh_yan.model import build_model, load_curves, sum_fluxes, sum_pools
 from fresh_yan.records import with_provenance
 
 TSAS = ["08", "16", "24", "40", "41"]
@@ -107,9 +108,14 @@ def main(instances_root: str, out_dir: str) -> None:
                          model_path=os.path.join(
                              instances_root, f"femic-tsa{s}-instance/output/ws3"),
                          section_units="periods")
+        c_p, c_f = load_curves(
+            os.path.join("curves", f"femic-tsa{s}", "c_curves_p.pkl"),
+            os.path.join("curves", f"femic-tsa{s}", "c_curves_f.pkl"))
+        plugin_c_curves(fm, c_p, c_f, sum_pools, sum_fluxes)
+        eco0 = float(fm.inventory(0, "ecosystem"))
+        assert eco0 > 0, f"no ecosystem inventory for tsa{s} (curves not plugged?)"
         rows.append({"tsa": f"tsa{s}", "thlb_ha": float(are.area.sum()),
-                     "dev_types": len(fm.dtypes),
-                     "initial_eco_mtc": float(fm.inventory(0, "ecosystem")) / 1e6})
+                     "dev_types": len(fm.dtypes), "initial_eco_mtc": eco0 / 1e6})
     with_provenance(pd.DataFrame(rows)).to_csv(
         os.path.join(os.path.dirname(os.path.normpath(out_dir)),
                      "five_tsa_attributes.csv"), index=False)
