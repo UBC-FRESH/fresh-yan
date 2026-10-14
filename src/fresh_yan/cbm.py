@@ -132,7 +132,11 @@ def compare_ws3_libcbm(
         right_on=["identifier", "timestep"]
     )
 
-    # Summarize CBM data
+    # Summarize CBM data. Sample libCBM at the END of each period (timestep 10p)
+    # to match the ws3 period-p inventories; the previous start-of-period sampling
+    # (timestep 10(p-1)+1) shifted the whole libCBM series one period earlier and
+    # inflated every stock and flux difference (replay validation pinned t = 10p
+    # as the age-exact pairing; see planning/ws3-libcbm-replay-findings.md).
     df_cbm = pd.DataFrame({
         'period': pi["timestep"] * 0.1,
         'biomass_stock': pi[biomass_pools].sum(axis=1),
@@ -140,9 +144,9 @@ def compare_ws3_libcbm(
         'eco_stock': pi[eco_pools].sum(axis=1),
         'total_emission': fi[total_emission].sum(axis=1),
         'gross_growth': fi[gross_growth].sum(axis=1)
-    }).groupby('period').sum().iloc[1::10, :].reset_index()
+    }).groupby('period').sum().iloc[10::10, :].reset_index()
 
-    df_cbm['period'] = (df_cbm['period'] + 0.9).astype(int)
+    df_cbm['period'] = df_cbm['period'].round().astype(int)
     df_cbm['net_emission'] = df_cbm['total_emission'] - df_cbm['gross_growth']
 
     # Summarize WS3 data
@@ -217,6 +221,19 @@ def compare_ws3_libcbm(
         axs[3].set_xticks(ticks)
         axs[3].legend(loc='lower right')
 
+        plt.tight_layout()
+
+    elif plots == "emissions":
+        _fig = plt.figure(figsize=(10, 4))
+        plt.plot(df_cbm['period'], df_cbm['net_emission'],
+                 label='libcbm Net Ecosystem Emission')
+        plt.plot(df_ws3['period'], df_ws3['net_emission'],
+                 label='ws3 Net Ecosystem Emission')
+        plt.xlabel('Period')
+        plt.ylabel('Emission (tC)')
+        plt.xticks(np.arange(df_cbm['period'].min() - 1,
+                             df_cbm['period'].max() + 1, 2))
+        plt.legend()
         plt.tight_layout()
 
     # If a filename is provided, save the figure to PDF

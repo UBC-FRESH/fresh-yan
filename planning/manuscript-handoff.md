@@ -16,7 +16,7 @@ Status: **OK** (record exists) · **RUNNING** (record being generated) · **TODO
 | Fig. 5 — base-scenario area/volume/stock (TSA 24) | `results/femic-tsa24/base_scenario/` | `fresh-yan base-scenario` (femic args) | OK |
 | Table — no-harvest stocks vs libCBM (TSA 24) | `results/femic-tsa24/no_harvest/no_harvest_pct_diff_summary.csv` (+ cbm/ws3) | `fresh-yan no-harvest` (femic args) | OK |
 | Fig. 6 — no-harvest stocks vs libCBM | `results/femic-tsa24/no_harvest/no_harvest_carbon_stock_whole_st.pdf` | same | OK |
-| Fig. 7 — no-harvest net emissions vs libCBM | `results/femic-tsa24/no_harvest/no_harvest_carbon_dynamics_individual_st.pdf` | same | OK |
+| Fig. 7 — no-harvest net emissions vs libCBM | `results/femic-tsa24/no_harvest/no_harvest_emissions.pdf` (single-panel net emissions) | same | OK |
 | Max-harvest stocks/emissions vs libCBM (old Figs. 8–9, removed) | — | — | Removed from the manuscript; harvested-landscape validation scoped as future work (ws3<->libCBM managed-stand age offset open) |
 | Figs. 8 — five-unit optimization surface (3D + orthographic views) | `results/femic-tsa*/tradeoff_grid/tradeoff_grid_summary.csv` + `results/cross-tsa/figures/five_tsa_surfaces.pdf` | `scripts/tsa_campaign_figures.py` | OK |
 | Fig. 9 — flip mid-point and 10–90% bands by half-life | `results/cross-tsa/cross_tsa_thresholds.pdf` (+ `.csv`) | `scripts/cross_tsa_analysis.py` | OK |

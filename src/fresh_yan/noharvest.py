@@ -70,6 +70,10 @@ def generate(out_dir: str = "results/no_harvest", tsa: str = "tsa24",
         fm, cbm_output, mapping, biomass_pools, dom_pools,
         total_emission, gross_growth, plots="individual",
         filename=os.path.join(out_dir, "no_harvest_carbon_dynamics_individual_st.pdf"))
+    df_cbm, df_ws3 = compare_ws3_libcbm(
+        fm, cbm_output, mapping, biomass_pools, dom_pools,
+        total_emission, gross_growth, plots="emissions",
+        filename=os.path.join(out_dir, "no_harvest_emissions.pdf"))
 
     df_diff = pct_diff(df_ws3, df_cbm)
     summary = (
