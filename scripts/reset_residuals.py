@@ -26,6 +26,7 @@ import os
 import pandas as pd
 
 from fresh_yan.base_scenario import solve as base_solve
+from fresh_yan.cbm import plugin_c_curves
 from fresh_yan.curves import (
     _clearcut_event,
     _regeneration_sources,
@@ -33,7 +34,14 @@ from fresh_yan.curves import (
     _single_stand_inventory,
     _summarize,
 )
-from fresh_yan.model import build_model, disturbance_type_mapping, to_cbm_sit
+from fresh_yan.model import (
+    build_model,
+    disturbance_type_mapping,
+    load_curves,
+    sum_fluxes,
+    sum_pools,
+    to_cbm_sit,
+)
 from fresh_yan.records import with_provenance
 
 ROTATION_AGE = 120
@@ -49,7 +57,11 @@ def main(tsa: str, out_dir: str, instances_root: str) -> None:
     model_path = os.path.join(instances_root, f"femic-tsa{tsa}-instance/output/ws3")
     fm = build_model(model_name=f"tsa{tsa}", model_path=model_path, section_units="periods")
     fm.actions["cc"].is_harvest = True
+    c_p, c_f = load_curves(os.path.join("curves", f"femic-tsa{tsa}", "c_curves_p.pkl"),
+                           os.path.join("curves", f"femic-tsa{tsa}", "c_curves_f.pkl"))
+    plugin_c_curves(fm, c_p, c_f, sum_pools, sum_fluxes)
     eco0 = float(fm.inventory(0, "ecosystem"))
+    assert eco0 > 0, "no ecosystem inventory (curves not plugged?)"
     mapping = disturbance_type_mapping(fm, harvest_acode="cc")
     sit_config, sit_tables = to_cbm_sit(fm, mapping)
 
