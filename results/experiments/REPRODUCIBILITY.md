@@ -68,6 +68,13 @@ python scripts/stand_validation.py --out-dir results/femic-tsa24/stand_validatio
 
 # 8. Evidence-to-decision summary over published parameter ranges
 python scripts/evidence_decision_analysis.py --out-dir results/cross-tsa
+
+# 9. Cross-unit threshold attributes (results text)
+python scripts/threshold_attributes.py --instances-root <instances-root> \
+  --out-dir results/cross-tsa
+
+# 10. Displacement-factor convention mapping (methods text)
+python scripts/df_convention.py --out-dir results/cross-tsa
 ```
 
 Design and validation (verified 2026-10-13 by an independent audit, including
@@ -107,6 +114,13 @@ agreement to <=6e-8 tCO2 on ~1e9 tCO2):
   base across published displacement-factor ranges spans 1-76% (TSA 24, Leskinen
   95% range) and 3-7% vs 36-71% for the Smyth et al. 2017 general vs building-only
   cases.
+- Threshold attributes (cross-unit): the flip mid-point ranks exactly with the
+  young-stand share (Spearman rho = 1.0 at hl=100, p<0.01; 0.9 for the median
+  threshold across half-lives), from 7% under 50 yr (TSA 08, lowest threshold) to
+  41% (TSA 24, highest); unit size, carbon and carbon density do not order it.
+- Displacement-factor convention mapping: one unit of df provides 0.425 effective
+  credit per tC of harvested merchantable carbon (0.85 utilization x 50/50 split);
+  hl=100 mid-points map to 0.40-0.68 tC/tC on that basis.
 
 ## Legacy TSA 24 records
 

@@ -43,10 +43,11 @@ page records the worklist and its resolution state.
 
 ## Pending
 
-- **P9/P10/P11.** Attribute analysis of the cross-unit threshold ordering; novelty
-  positioning vs recent literature (Boiger 2025; Daigneault 2022; Lucey 2024;
-  Yan 2025); displacement-factor convention normalization (including the 0.425x
-  effective-credit axis).
+- **P9/P10/P11 - done.** Threshold-attribute analysis
+  (`results/cross-tsa/threshold_attributes.csv`); novelty positioning vs Boiger
+  2025 / Daigneault 2022 / Lucey 2024 and the Yan 2025 precursor (manuscript
+  introduction, verified citations); displacement-factor convention mapping
+  (`results/cross-tsa/df_convention_mapping.csv`; 0.425x effective-credit axis).
 - **P3 release.** Tagged releases + Zenodo DOI; regenerate derived records from a
   clean pin (current derived records carry `fy_commit=b492c7c+dirty`); final
   text-vs-record sweep; submit.
