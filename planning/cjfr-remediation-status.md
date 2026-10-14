@@ -22,22 +22,24 @@ page records the worklist and its resolution state.
   the manuscript limitations report the magnitudes (2.9-10.3x low-displacement
   suppression; 3.6-14x across-variant volume range; -16% to +18% net-emission
   effect, +80% under all-solid allocation at df=2.0).
-- **P13 compliance (partial).** AI declaration names the tool and model; funding
-  statement and CRediT confirmation pending author input.
+- **P13 compliance.** AI declaration names the tool and model; funding statement
+  (NSERC Discovery Grant RGPIN-2023-04197) and CRediT (first-author order and roles)
+  complete.
 - **P14 polish.** Highlights removed; Boisvenue DOI corrected
   (10.1088/1748-9326/ac9919); garbled sentences; PG-TSA leftovers; roadmap ordering;
   unsourced area claim removed; the 1.4% simplification number replaced by the
   stated tolerance; handoff, README and reproducibility docs synced.
 
-## Open - author decisions
+## Resolved author decisions (2026-10-14)
 
-- **P6 harvested-landscape validation.** (A) fallback: stand-level validation plus
-  explicit scoping (the current text already scopes the landscape comparison as
-  future work; the replay harness carries an unexplained aggregate residual);
-  (B) time-boxed attempt (3-10 days) on the cohort-exact ws3<->libCBM managed-stand
-  bridge.
-- **P7 claim handling.** (A) restate the "not identifiable" claim (~0.5 day);
-  (B) add an evidence-to-decision analysis (~1-2 days) supporting the title claim.
+- **P6 - fallback selected.** The stand-level harvested-cycle check is delivered
+  (`results/femic-tsa24/stand_validation/`); the cohort-exact landscape comparison
+  remains future work (unresolved replay residual, not yet at record quality).
+- **P7 - evidence-to-decision analysis delivered** (record:
+  `results/cross-tsa/decision_under_evidence.csv`; reported in the discussion).
+- **Author side.** Gregory Paradis is first author with an expanded CRediT set;
+  funding statement: NSERC Discovery Grant RGPIN-2023-04197. Zenodo: tagged release
+  at freeze, DOI via the GitHub integration.
 
 ## Pending
 
