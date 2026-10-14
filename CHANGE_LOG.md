@@ -31,6 +31,9 @@
   (rho = 1.0 at hl=100); size, carbon and density do not order it.
 - Added `scripts/df_convention.py` + `results/cross-tsa/df_convention_mapping.csv`:
   effective-credit axis (0.425x df per tC of harvested merchantable carbon).
+- Regenerated the cross-TSA derived records (thresholds, grid maxima, reference cells,
+  threshold figure) from a clean pin: values identical, provenance only
+  (b492c7c+dirty -> 2f7ce49).
 
 # 2026-10-13 — Five-TSA grid wave complete + cross-TSA flip analysis (#3)
 
