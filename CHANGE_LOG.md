@@ -10,6 +10,8 @@
   volume at df=0.5 than df=2.0); across-variant volume range at a cell 3.6-14x; net
   emission effect within -16%..+18% of the baseline except the all-solid allocation
   (+80% at df=2.0).
+- Added `planning/cjfr-remediation-status.md` (rejection-sim worklist status and
+  open author decisions) and linked it from the handoff.
 - Synced `planning/manuscript-handoff.md`, `README.md` and
   `results/experiments/REPRODUCIBILITY.md`; the manuscript limitations now report the
   robustness magnitudes.
