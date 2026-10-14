@@ -61,10 +61,13 @@ wrapped reporting function; ws3 area tables self-checked against
 
 Consequences: (1) the harvested-landscape comparison must sample at t = 10p (age-exact)
 and use a tie-robust cohort matcher (area-only matching degenerates at late periods as
-multi-rotation splits create duplicate area values); (2) the replay's structural
-agreement is ~few %, so the manuscript's harvested-landscape validation can report
-O(3-5%) stock agreement once the comparison convention is fixed; (3) nothing in the
-14-38% was structural - it is entirely bookkeeping (sampling convention).
+multi-rotation splits create duplicate area values); (2) at the paired-cohort level the
+age-exact agreement is ~3.3% (p=1); (3) the *aggregate* series at t=10p still shows
+large per-period biomass gaps (mean 39% at TSA 24; the paired subset and the full-landscape
+aggregate disagree), so the sampling fix alone does not close the aggregate residual -
+the remaining discrepancy sits in the cohorts the area-tie matcher cannot pair and/or the
+ws3 aggregate area bookkeeping at later periods. This remains OPEN; the harness is not
+manuscript-ready (see also the earlier status section below).
 
 ## Status after the first harness run (2026-10-13)
 
