@@ -48,6 +48,12 @@ page records the worklist and its resolution state.
   2025 / Daigneault 2022 / Lucey 2024 and the Yan 2025 precursor (manuscript
   introduction, verified citations); displacement-factor convention mapping
   (`results/cross-tsa/df_convention_mapping.csv`; 0.425x effective-credit axis).
+- **Pre-submission visual pass (2026-10-14).** Page-by-page review of the built PDF:
+  removed the empty template appendix; fixed the leftovers it exposed (empty subsection
+  heading, two half-empty pages, a clipped equation-list line, garbled sentences,
+  swapped Boisvenue/Kurz DOIs, map axis labels, figure title overlaps); enabled
+  hyperref hidelinks; corrected the harvested-landscape wording. Release v0.1.2
+  (doi:10.5281/zenodo.23358263) matches the manuscript's figures.
 - **Post-release correction (2026-10-14).** The no-harvest comparison sampled libCBM
   at the start of each period (t = 10(p-1)+1) while ws3 inventories are end-of-period
   (t = 10p); fixed to the end-of-period pairing, records regenerated, and the
