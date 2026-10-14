@@ -55,6 +55,11 @@ python scripts/five_tsa_figures.py --instances-root <instances-root> \
 python scripts/analyze_sensitivity.py \
   --summary results/femic-tsa24/tradeoff_grid/tradeoff_grid_summary.csv \
   --out-dir results/femic-tsa24/tradeoff_grid/figures
+
+# 6. Structural robustness spot-checks (femic TSA 24; manuscript limitations)
+python scripts/robustness_checks.py --out-dir results/femic-tsa24/robustness \
+  --tsa tsa24 --model-path <instances-root>/femic-tsa24-instance/output/ws3 \
+  --section-units periods --harvest-acode cc --curves-dir curves/femic-tsa24
 ```
 
 Design and validation (verified 2026-10-13 by an independent audit, including
@@ -81,6 +86,11 @@ agreement to <=6e-8 tCO2 on ~1e9 tCO2):
 - Reset residuals of the generated curves: see `results/cross-tsa/reset_residuals_tsa*.csv`
   (documented cycle metric and the direct cut residual per development type, with the
   base-scenario harvested area for the net phantom-carbon bound).
+- Structural robustness (femic TSA 24, 18 solves; hl=100, df=0.5/1.0/2.0):
+  low-displacement suppression persists in every variant (2.9-10.3x less volume at
+  df=0.5 than at df=2.0); across-variant volume range 3.6-14x at a given cell; net
+  system emission effect within -16%..+18% of the baseline, except the all-solid
+  allocation (+80% at df=2.0).
 
 ## Legacy TSA 24 records
 

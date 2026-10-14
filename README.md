@@ -3,14 +3,14 @@
 Open, reproducible code, data, and results for the CJFR manuscript:
 
 > Coupland, K., Paradis, G., Ghasemi, E., Ghotb, S., & Yan, W. (in preparation).
-> The role of harvested wood product half-life and displacement uncertainty in
-> forest management decision trade-offs and carbon dynamics in British Columbia.
+> The climate-optimal harvest level is not identifiable from current HWP evidence:
+> a five-landscape optimization test in British Columbia, Canada.
 > *Canadian Journal of Forest Research*.
 
 Built on [`ws3`](https://github.com/UBC-FRESH/ws3) (forest estate simulation and
 optimization) and [`libcbm_py`](https://github.com/cat-cfs/libcbm_py) (forest carbon
-budget model), with the Prince George Timber Supply Area (TSA 24, British Columbia)
-as the case study.
+budget model), using five interior British Columbia timber supply areas (TSA 08,
+16, 24, 40 and 41) as the case study.
 
 ## Why this exists
 
@@ -24,22 +24,28 @@ turns records into results.
 
 ## What it does
 
-- **No-harvest validation.** Compares ws3's carbon yield-curve approach against a
-  direct libCBM run on the real TSA 24 landscape (stocks and net emissions).
+- **No-harvest validation.** Compares ws3's carbon yield-curve approach against
+  direct libCBM runs on the five real model landscapes (stocks and net emissions).
 - **Base scenario.** Maximizes even-flow harvest volume (harvest area, harvest volume,
-  growing stock) over the 200-year horizon.
-- **Trade-off grid.** Bi-objective harvest-volume vs net-emission frontiers across HWP
-  half-lives and displacement factors.
-- **Sensitivity grid.** Optimal harvest volume over the (half-life, displacement)
-  plane, feeding the manuscript's 3D and orthographic maps.
+  growing stock) over the 200-year horizon, for each of the five units.
+- **Emission-minimizing trade-off grid.** Optimal harvest under the net-emission
+  objective across HWP half-lives and displacement factors.
+- **Sensitivity grids.** 5,000-cell (half-life x displacement) optimal-harvest grids
+  per unit, feeding the manuscript's five-unit surface maps.
+- **Cross-TSA analysis.** Flip thresholds (mid-point and 10-90% bands), reset-residual
+  bounds and the literature overlay for the five units.
+- **Structural robustness.** One-at-a-time variants (even-flow width, horizon, wood
+  allocation) re-run on the campaign model.
 - **Manuscript figures and tables** regenerate from the tracked records via tracked
   commands.
 
 ## Status
 
-`v0.0.1` (scaffold). Records generated so far: no-harvest comparison
-(`results/no_harvest/`). Base scenario, trade-off and sensitivity grids are in
-progress; see `ROADMAP.md`.
+`v0.0.1`. Records complete for the five-unit campaign: no-harvest validation
+(every unit vs libCBM), base scenarios, emission-minimizing grids, 5 x 5,000-cell
+sensitivity grids, cross-TSA analysis (thresholds, reset residuals, overlay) and
+structural robustness (`results/femic-tsa*/`, `results/cross-tsa/`). The manuscript
+is in submission preparation; see `ROADMAP.md`.
 
 ## Quick start
 
