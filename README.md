@@ -45,7 +45,7 @@ turns records into results.
 (every unit vs libCBM), base scenarios, emission-minimizing grids, 5 x 5,000-cell
 sensitivity grids, cross-TSA analysis (thresholds, reset residuals, overlay) and
 structural robustness (`results/femic-tsa*/`, `results/cross-tsa/`). The manuscript
-is in submission preparation; see `ROADMAP.md`.
+is in submission preparation. `v0.1.0` is released and archived on Zenodo: [doi:10.5281/zenodo.23357325](https://doi.org/10.5281/zenodo.23357325); see `ROADMAP.md`.
 
 ## Quick start
 
