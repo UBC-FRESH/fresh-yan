@@ -48,9 +48,11 @@ page records the worklist and its resolution state.
   2025 / Daigneault 2022 / Lucey 2024 and the Yan 2025 precursor (manuscript
   introduction, verified citations); displacement-factor convention mapping
   (`results/cross-tsa/df_convention_mapping.csv`; 0.425x effective-credit axis).
-- **P3 release.** Tagged releases + Zenodo DOI; regenerate derived records from a
-  clean pin (current derived records carry `fy_commit=b492c7c+dirty`); final
-  text-vs-record sweep; submit.
+- **P3 release - done (2026-10-14).** fresh-yan `v0.1.0` tagged + released,
+  archived on Zenodo (doi:10.5281/zenodo.23357325, cited in the data statement);
+  manuscript repo tagged `cjfr-submission-1`; derived records regenerated from a
+  clean pin (values identical); CI green after landing pre-existing lint fixes;
+  text-vs-record sweep re-run. Remaining: author read-through and submission.
 
 Fallback journals if CJFR declines: Ecological Modelling; Environmental Modelling &
 Software; Carbon Balance and Management.
