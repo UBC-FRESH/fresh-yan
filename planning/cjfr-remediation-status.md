@@ -48,6 +48,11 @@ page records the worklist and its resolution state.
   2025 / Daigneault 2022 / Lucey 2024 and the Yan 2025 precursor (manuscript
   introduction, verified citations); displacement-factor convention mapping
   (`results/cross-tsa/df_convention_mapping.csv`; 0.425x effective-credit axis).
+- **Post-release correction (2026-10-14).** The no-harvest comparison sampled libCBM
+  at the start of each period (t = 10(p-1)+1) while ws3 inventories are end-of-period
+  (t = 10p); fixed to the end-of-period pairing, records regenerated, and the
+  manuscript validation numbers updated (stock agreement now 0.2-5.4% period-mean;
+  fluxes with no sign flips).
 - **P3 release - done (2026-10-14).** fresh-yan `v0.1.0` tagged + released,
   archived on Zenodo (doi:10.5281/zenodo.23357325, cited in the data statement);
   manuscript repo tagged `cjfr-submission-1`; derived records regenerated from a

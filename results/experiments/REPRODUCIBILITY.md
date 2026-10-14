@@ -87,7 +87,10 @@ agreement to <=6e-8 tCO2 on ~1e9 tCO2):
   1.54 tC/tC for TSA 08/16/24/40/41; grid maxima 0.57-0.78 of base; TSA 16 has 1,446
   zero-harvest cells (displacement <= ~0.5).
 - No-harvest validation (ws3 curves vs direct libCBM): period-mean absolute stock
-  differences of 0.9-3.7% (ecosystem), 1.4-3.8% (biomass), 0.9-6.2% (DOM).
+  differences of 0.4-3.1% (ecosystem), 0.2-0.5% (biomass), 0.6-5.4% (DOM) with the
+  end-of-period pairing (libCBM sampled at timestep 10p to match the ws3 period-p
+  inventories); net-emission flux residuals are 1.4-4.5 x 10^4 tC/period in
+  absolute terms (0.01-0.02% of initial ecosystem carbon), with no sign flips.
 - Base scenarios: TSA 24 harvests 326,188-360,523 ha/period and 6.73-7.44 x 10^7
   m3/period (1.41 x 10^9 m3 total); growing stock 3.65 -> 1.95 x 10^8 m3. The five
   units total 0.28-1.41 x 10^9 m3. The units table's period-0 inventory carbon is
