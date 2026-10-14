@@ -34,6 +34,11 @@
 - Regenerated the cross-TSA derived records (thresholds, grid maxima, reference cells,
   threshold figure) from a clean pin: values identical, provenance only
   (b492c7c+dirty -> 2f7ce49).
+- Fixed the no-harvest comparison sampling (`compare_ws3_libcbm`: end-of-period
+  pairing, libCBM timestep 10p, replacing the start-of-period sample that shifted
+  libCBM one period earlier) and regenerated the five units' no-harvest records from
+  the fixed pin 501db3a; a single-panel net-emissions figure was added. Stock
+  agreement is now 0.2-5.4% period-mean (was 0.9-6.2%); fluxes show no sign flips.
 
 # 2026-10-13 — Five-TSA grid wave complete + cross-TSA flip analysis (#3)
 
