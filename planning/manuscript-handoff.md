@@ -22,6 +22,8 @@ Status: **OK** (record exists) · **RUNNING** (record being generated) · **TODO
 | Fig. 9 — flip mid-point and 10–90% bands by half-life | `results/cross-tsa/cross_tsa_thresholds.pdf` (+ `.csv`) | `scripts/cross_tsa_analysis.py` | OK |
 | Reset-residual record (curve QA; manuscript bound) | `results/cross-tsa/reset_residuals_tsa*.csv` | `scripts/reset_residuals.py` | OK |
 | Structural robustness spot-checks (limitations) | `results/femic-tsa24/robustness/robustness_results.csv` | `scripts/robustness_checks.py` (femic args) | OK |
+| Stand-level harvested-cycle check (validation text) | `results/femic-tsa24/stand_validation/stand_cycle_diffs.csv` | `scripts/stand_validation.py` (femic args) | OK |
+| Evidence-to-decision summary (discussion) | `results/cross-tsa/decision_under_evidence.csv` | `scripts/evidence_decision_analysis.py` | OK |
 | Fig. 10 — uncertainty overlay (literature ranges vs thresholds) | `results/cross-tsa/figures/tsa_overlay.pdf` | `scripts/tsa_campaign_figures.py` | OK |
 
 The removed legacy items (bi-objective trade-off curves; unmanaged/managed split figures;
@@ -40,10 +42,10 @@ implemented in the manuscript methods; the legacy `hwp.py` carries a superseded 
 
 ## Open items for the authors
 
-1. **Max-harvest carbon comparison (Figs. 8-9).** Still no corrected record: the
-   harvested-landscape cross-validation is blocked on the ws3<->libCBM managed-stand
-   age offset. The manuscript scopes these figures as pre-correction and lists the
-   corrected validation as future work.
+1. **Harvested-landscape validation.** The stand-level harvested-cycle check is
+   reported (`results/femic-tsa24/stand_validation/`); the cohort-exact landscape
+   comparison remains future work (the replay carries an unresolved residual and is
+   not yet at record quality).
 2. **Uncertainty overlay figure.** Built: `results/cross-tsa/figures/tsa_overlay.pdf`
    (`scripts/tsa_campaign_figures.py`; range data: `planning/df_hl_ranges.csv` in the
    manuscript repository).

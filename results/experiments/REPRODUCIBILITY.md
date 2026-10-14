@@ -60,6 +60,14 @@ python scripts/analyze_sensitivity.py \
 python scripts/robustness_checks.py --out-dir results/femic-tsa24/robustness \
   --tsa tsa24 --model-path <instances-root>/femic-tsa24-instance/output/ws3 \
   --section-units periods --harvest-acode cc --curves-dir curves/femic-tsa24
+
+# 7. Stand-level harvested-cycle check (curve layer vs direct libCBM)
+python scripts/stand_validation.py --out-dir results/femic-tsa24/stand_validation \
+  --tsa tsa24 --model-path <instances-root>/femic-tsa24-instance/output/ws3 \
+  --section-units periods --harvest-acode cc --curves-dir curves/femic-tsa24
+
+# 8. Evidence-to-decision summary over published parameter ranges
+python scripts/evidence_decision_analysis.py --out-dir results/cross-tsa
 ```
 
 Design and validation (verified 2026-10-13 by an independent audit, including
@@ -91,6 +99,14 @@ agreement to <=6e-8 tCO2 on ~1e9 tCO2):
   df=0.5 than at df=2.0); across-variant volume range 3.6-14x at a given cell; net
   system emission effect within -16%..+18% of the baseline, except the all-solid
   allocation (+80% at df=2.0).
+- Stand-level harvested-cycle check (femic TSA 24, 27 regeneration targets, three
+  rotations): curve-assembled trajectories match the direct libCBM runs exactly in
+  live biomass and within a few percent in DOM/ecosystem, converging over rotations
+  (first: mean abs 3.7%/4.9%, worst 10.6%/12.2%; third: 1.4%/1.8%, worst 3.2%/3.6%).
+- Evidence-to-decision summary: the optimal harvest share of the volume-maximizing
+  base across published displacement-factor ranges spans 1-76% (TSA 24, Leskinen
+  95% range) and 3-7% vs 36-71% for the Smyth et al. 2017 general vs building-only
+  cases.
 
 ## Legacy TSA 24 records
 

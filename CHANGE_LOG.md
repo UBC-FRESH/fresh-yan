@@ -15,6 +15,17 @@
 - Synced `planning/manuscript-handoff.md`, `README.md` and
   `results/experiments/REPRODUCIBILITY.md`; the manuscript limitations now report the
   robustness magnitudes.
+- Added `scripts/stand_validation.py` + `results/femic-tsa24/stand_validation/`
+  (stand-level harvested-cycle check: curve layer vs direct libCBM over three
+  rotations; biomass exact, DOM/ecosystem converging from 3.7%/4.9% mean abs in the
+  first rotation to 1.4%/1.8% by the third).
+- Added `scripts/evidence_decision_analysis.py` +
+  `results/cross-tsa/decision_under_evidence.csv` (optimal harvest as a share of
+  base across published displacement-factor ranges; TSA 24 spans 1-76% over the
+  Leskinen 95% range; Smyth et al. 2017 general vs building-only cases: 3-7% vs
+  36-71%).
+- Manuscript PR #7 (author side): Gregory Paradis first author with the full CRediT
+  role set; NSERC Discovery Grant RGPIN-2023-04197 funding statement.
 
 # 2026-10-13 — Five-TSA grid wave complete + cross-TSA flip analysis (#3)
 
