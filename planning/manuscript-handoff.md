@@ -49,3 +49,5 @@ implemented in the manuscript methods; the legacy `hwp.py` carries a superseded 
    manuscript repository).
 3. **Reset-residual bound.** Complete: the five-unit record bounds the first-rotation
    residual at 2.3% of initial ecosystem carbon in the worst unit (TSA 24: 1.6%).
+4. **Submission path.** See `planning/cjfr-remediation-status.md` for the
+   rejection-simulation worklist status and the open author decisions.
