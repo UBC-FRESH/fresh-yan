@@ -53,7 +53,6 @@ def main(out_dir: str) -> None:
     gs = fig.add_gridspec(len(TSAS), 4, hspace=0.42, wspace=0.30)
     for r, (label, name) in enumerate(TSAS):
         x, y, z = load_surface(label)
-        zmax = max(float(np.nanmax(z)), 1e9)
         # 3D
         ax = fig.add_subplot(gs[r, 0], projection="3d")
         ax.plot_surface(x, y, z, cmap="viridis", edgecolor="none")
@@ -73,7 +72,7 @@ def main(out_dir: str) -> None:
                 (x, z, y, "half-life (yr)", "volume (m$^3$)"),
                 (y, z, x, "df (tC/tC)", "volume (m$^3$)")], start=1):
             axo = fig.add_subplot(gs[r, c])
-            cf = axo.contourf(a, b, zz, cmap="viridis", levels=24)
+            axo.contourf(a, b, zz, cmap="viridis", levels=24)
             axo.set_xlabel(xl, fontsize=7)
             axo.set_ylabel(yl, fontsize=7)
             axo.tick_params(labelsize=6.5)
@@ -110,8 +109,8 @@ def main(out_dir: str) -> None:
     ax.set_ylim(0, 2.4)
     ax.set_xlabel("Solid-wood half-life (yr)")
     ax.set_ylabel("Flip mid-threshold df50 (tC/tC)")
-    h, l = ax.get_legend_handles_labels()
-    ax.legend(h, l, fontsize=7, loc="upper right", ncol=2, framealpha=0.9)
+    h, labels = ax.get_legend_handles_labels()
+    ax.legend(h, labels, fontsize=7, loc="upper right", ncol=2, framealpha=0.9)
     fig.savefig(os.path.join(out_dir, "tsa_overlay.pdf"), bbox_inches="tight")
     plt.close(fig)
     print("wrote tsa_overlay.pdf", flush=True)
