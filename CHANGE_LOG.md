@@ -26,6 +26,11 @@
   36-71%).
 - Manuscript PR #7 (author side): Gregory Paradis first author with the full CRediT
   role set; NSERC Discovery Grant RGPIN-2023-04197 funding statement.
+- Added `scripts/threshold_attributes.py` + `results/cross-tsa/threshold_attributes.csv`
+  (and correlations): the flip mid-point ranks exactly with the young-stand share
+  (rho = 1.0 at hl=100); size, carbon and density do not order it.
+- Added `scripts/df_convention.py` + `results/cross-tsa/df_convention_mapping.csv`:
+  effective-credit axis (0.425x df per tC of harvested merchantable carbon).
 
 # 2026-10-13 — Five-TSA grid wave complete + cross-TSA flip analysis (#3)
 

@@ -24,6 +24,8 @@ Status: **OK** (record exists) · **RUNNING** (record being generated) · **TODO
 | Structural robustness spot-checks (limitations) | `results/femic-tsa24/robustness/robustness_results.csv` | `scripts/robustness_checks.py` (femic args) | OK |
 | Stand-level harvested-cycle check (validation text) | `results/femic-tsa24/stand_validation/stand_cycle_diffs.csv` | `scripts/stand_validation.py` (femic args) | OK |
 | Evidence-to-decision summary (discussion) | `results/cross-tsa/decision_under_evidence.csv` | `scripts/evidence_decision_analysis.py` | OK |
+| Threshold-attribute analysis (results text) | `results/cross-tsa/threshold_attributes.csv` (+ correlations) | `scripts/threshold_attributes.py` | OK |
+| DF-convention mapping (methods text) | `results/cross-tsa/df_convention_mapping.csv` | `scripts/df_convention.py` | OK |
 | Fig. 10 — uncertainty overlay (literature ranges vs thresholds) | `results/cross-tsa/figures/tsa_overlay.pdf` | `scripts/tsa_campaign_figures.py` | OK |
 
 The removed legacy items (bi-objective trade-off curves; unmanaged/managed split figures;
