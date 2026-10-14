@@ -1,3 +1,19 @@
+# 2026-10-14 — Femic structural robustness records
+
+- Parameterized `scripts/robustness_checks.py` for campaign models (`--tsa`,
+  `--model-name`, `--model-path`, `--curves-dir`, `--section-units`,
+  `--harvest-acode`; previously legacy-only with the `harvest` action code hardcoded).
+- Added `results/femic-tsa24/robustness/robustness_results.csv`: six one-at-a-time
+  structural variants (even-flow width 5/15/none; allocation 50/50 vs solid-only;
+  horizon 15/20/25 periods) x three reference cells (hl=100; df=0.5/1.0/2.0), 18
+  solves. Low-displacement suppression persists in every variant (2.9-10.3x less
+  volume at df=0.5 than df=2.0); across-variant volume range at a cell 3.6-14x; net
+  emission effect within -16%..+18% of the baseline except the all-solid allocation
+  (+80% at df=2.0).
+- Synced `planning/manuscript-handoff.md`, `README.md` and
+  `results/experiments/REPRODUCIBILITY.md`; the manuscript limitations now report the
+  robustness magnitudes.
+
 # 2026-10-13 — Five-TSA grid wave complete + cross-TSA flip analysis (#3)
 
 - All five emission-minimizing grids finished (identical 25 x 200, HiGHS; 5,000 cells
