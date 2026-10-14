@@ -28,9 +28,18 @@ import pandas as pd
 from fresh_yan.base_scenario import solve as base_solve
 from fresh_yan.cbm import plugin_c_curves, run_cbm
 from fresh_yan.curves import _single_stand_inventory
-from fresh_yan.model import (biomass_pools, build_model, disturbance_type_mapping,
-                             dom_pools, gross_growth, load_curves, sum_fluxes, sum_pools,
-                             to_cbm_sit, total_emission)
+from fresh_yan.model import (
+    biomass_pools,
+    build_model,
+    disturbance_type_mapping,
+    dom_pools,
+    gross_growth,
+    load_curves,
+    sum_fluxes,
+    sum_pools,
+    to_cbm_sit,
+    total_emission,
+)
 from fresh_yan.noharvest import compare_ws3_libcbm, pct_diff
 from fresh_yan.records import with_provenance
 
