@@ -1,7 +1,9 @@
 # Species composition — VRI vs THLB (reconciling the "aspen leads 3 of 5" challenge)
 
-Status: resolved and verified (2026-10-20). This note records the question, the
-analysis, the exact sources, the results, and what remains unverified.
+Status: resolved and verified (2026-10-20), including the raster-level THLB
+threshold check (mean THLB >= 50% reproduces the landbase exactly). This note
+records the question, the analysis, the exact sources, the results, and what
+remains unverified.
 
 ## Question
 
@@ -141,14 +143,34 @@ in TSA 08/40 but essentially disappears from the THLB.
    populations (`stratify_stand`), and the AU table's CANFI codes match the
    stratum codes (aspen AUs carry 1201, etc.). No label/area mismatch was found.
 
-## Not verified / open items
+## THLB raster verification (2026-10-20) — closed
 
-- **The THLB raster itself was not recomputed.** The manuscript documents the
-  filter as "stand mean THLB raster signal ≥ 50%". This analysis verifies the
-  *consequence* of the filter (a productivity-selective subset consistent with
-  it) but not the raster-level selection per polygon. Definitive test: join the
-  THLB raster (FADM/THLB layer, `femic-public-data`) to the VRI polygons and
-  recompute inclusion; expected to reproduce the table above.
+The landbase rule was reproduced from the source raster with
+`scripts/verify_thlb_landbase.py` (legacy `misc.thlb.tif`: EPSG:3005, 100 m,
+int16, nodata < 0, values 0-100 percent; per-polygon rule identical to
+`femic.pipeline.tsa.mean_thlb_for_geometry`: mean of valid cells >= 0).
+
+- **`mean THLB >= 50%` reproduces the landbase exactly in stand count:
+  112,488 stands** (recorded landbase: 112,488 stands) and to **1,400,547.40 ha
+  vs 1,400,549.45 ha recorded** (difference 2.05 ha, 0.00015%; per-AU maximum
+  |difference| 3.59 ha, 0.36% of that AU; stand-area bookkeeping/rounding).
+- **Species shares are identical to two decimals** (max |difference| 0.0004
+  percentage points across species).
+- **Discriminating checks**: `> 50%` gives 111,890 stands / 1,398,182 ha (no
+  match); the proportional area-share interpretation gives 1,299,969 ha (no
+  match). The sweep is recorded in `thlb_threshold_sweep_tsa08.csv`.
+- **Borderline check**: 4,613 stands have rasterized means between 47 and 53;
+  recomputing their means with the exact per-polygon `rasterio.mask` rule flips
+  **zero** stands across the 50 threshold, so the result is not a rasterization
+  artifact.
+- Records: `results/cross-tsa/thlb_threshold_sweep_tsa08.csv`,
+  `results/cross-tsa/thlb_landbase_verification_tsa08.csv`.
+
+Conclusion: the manuscript methods sentence ("stands with a mean THLB raster
+signal >= 50%") is verified; the model landbase is exactly the >= 50% set.
+
+## Open items
+
 - **Raw VRI download hashes are not committed** per instance. The source
   datasets are named in `docs/data-and-provenance.rst`; `femic data
   bcdc-resolve` can write a resolve manifest (`write_bcdc_manifest`) but none is
@@ -164,6 +186,8 @@ in TSA 08/40 but essentially disappears from the THLB.
 - Figure 4 and the species sentence are **correct at the THLB denominator**;
   the figure caption already says "as a percentage of each unit's harvested
   landbase".
+- The methods sentence on the THLB rule (>= 50% mean raster signal) is verified
+  (see above); no change needed.
 - To preempt the reviewer question this note arose from, add one clause to
   Methods/Results: the model landbase is the THLB (27–55% of the VRI area by
   unit), and is productivity-selective (low-site spruce/birch largely excluded;

@@ -1,0 +1,13 @@
+metric,value,fy_commit,fy_version,ws3_version,libcbm_version
+selected_threshold_pct,50.0,d2d732c,0.0.1,1.1.0a5,2.10.2
+selected_stands,112488.0,d2d732c,0.0.1,1.1.0a5,2.10.2
+selected_area_ha,1400547.4,d2d732c,0.0.1,1.1.0a5,2.10.2
+woodstock_areas_stands,112488.0,d2d732c,0.0.1,1.1.0a5,2.10.2
+woodstock_areas_area_ha,1400549.4518722799,d2d732c,0.0.1,1.1.0a5,2.10.2
+are_stands_na,,d2d732c,0.0.1,1.1.0a5,2.10.2
+are_area_ha,1400549.451872,d2d732c,0.0.1,1.1.0a5,2.10.2
+per_au_max_abs_diff_ha,3.586584999997285,d2d732c,0.0.1,1.1.0a5,2.10.2
+per_au_max_rel_diff_pct,0.3583152583943961,d2d732c,0.0.1,1.1.0a5,2.10.2
+species_share_max_abs_diff_pp,0.00038573025868871014,d2d732c,0.0.1,1.1.0a5,2.10.2
+borderline_stands_checked,4613.0,d2d732c,0.0.1,1.1.0a5,2.10.2
+borderline_exact_flips,0.0,d2d732c,0.0.1,1.1.0a5,2.10.2

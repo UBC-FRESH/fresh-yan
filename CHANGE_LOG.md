@@ -12,6 +12,13 @@
 - Added `scripts/vri_vs_thlb_composition.py` +
   `results/cross-tsa/species_composition_vri_vs_thlb.csv` and
   `results/cross-tsa/thlb_inclusion_by_si.csv`.
+- Verified the THLB landbase rule against the legacy THLB raster
+  (`scripts/verify_thlb_landbase.py`): mean THLB >= 50% reproduces the TSA 08
+  landbase exactly in stand count (112,488) and to 2.05 ha in area
+  (1,400,547.40 vs 1,400,549.45 ha); species shares identical to two decimals;
+  >50% and the proportional interpretation are rejected. Records:
+  `results/cross-tsa/thlb_threshold_sweep_tsa08.csv`,
+  `results/cross-tsa/thlb_landbase_verification_tsa08.csv`.
 
 # 2026-10-20 - Species-composition figure correction
 
