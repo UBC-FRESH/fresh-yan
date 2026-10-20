@@ -14,6 +14,34 @@ The durable source of truth is the tracked records under `results/` (regenerated
 tracked CLI entry points) and the analysis scripts that turn them into the manuscript's
 figures and tables.
 
+## Evidence standard — no hand-waving, ever
+
+This project is real science and engineering. Plausible narratives, guesses,
+"probably/likely/should be" reasoning, or a tidy story in place of a computation
+are unacceptable under any circumstances — including in chat, notes, commits and
+PR descriptions.
+
+- **Reproduce before explaining.** If two numbers disagree, recompute both from
+  source before offering a mechanism. Never narrate a causal story where a
+  computation is possible.
+- **Name the population, denominator and units every time**: full VRI area vs
+  THLB, gross vs net, tC vs tCO2, per period vs total, per hectare vs total.
+  Most "impossible" numbers are denominator mismatches; find it, don't explain
+  it away.
+- **Every diagnosis must be falsifiable**: state the check that would refute it
+  and run that check. "Probably", "likely", "should", "it stands to reason" are
+  not evidence.
+- **Unverified means unverified.** Say so explicitly, state what would verify
+  it, and keep it out of the manuscript. Never present an unchecked number as a
+  fact.
+- **When challenged, drop the narrative and go to the data**: show the query,
+  the file, the commit, and the arithmetic.
+- **Never cite a computed number you have not seen produced by a tracked
+  script/command**, and never include a figure without opening it and checking
+  its labels, axes and denominators.
+- **No selective presentation**: report the result that contradicts the
+  expectation first.
+
 ## Non-negotiables
 
 - **Never edit on `main`.** All work happens on a branch (`issue-<n>-<slug>` or
@@ -27,7 +55,8 @@ figures and tables.
   this.
 - **Verify before claiming.** Every number that reaches the manuscript or the
   supplementary must trace to a tracked record and an analysis script. Keep
-  `planning/manuscript-handoff.md` up to date.
+  `planning/manuscript-handoff.md` up to date. See **Evidence standard — no
+  hand-waving, ever** above for the full standard.
 - **Cross-repo boundaries.** Fixes to `ws3` or `libcbm_py` belong upstream (issues,
   branches, PRs in those repositories) — do not patch them here. The legacy modelling
   repository `msc_walter_yan` is the historical source of the pipeline; new work lands
