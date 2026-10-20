@@ -75,6 +75,10 @@ python scripts/threshold_attributes.py --instances-root <instances-root> \
 
 # 10. Displacement-factor convention mapping (methods text)
 python scripts/df_convention.py --out-dir results/cross-tsa
+
+# 11. VRI vs THLB species composition + THLB inclusion by site class
+python scripts/vri_vs_thlb_composition.py --instances-root <instances-root> \
+  --out-dir results/cross-tsa
 ```
 
 Design and validation (verified 2026-10-13 by an independent audit, including
@@ -124,6 +128,11 @@ agreement to <=6e-8 tCO2 on ~1e9 tCO2):
 - Displacement-factor convention mapping: one unit of df provides 0.425 effective
   credit per tC of harvested merchantable carbon (0.85 utilization x 50/50 split);
   hl=100 mid-points map to 0.40-0.68 tC/tC on that basis.
+- Species composition reconciliation (VRI vs THLB): the model landbase is the
+  THLB-filtered subset of the VRI stand table (27-55% of VRI area by unit); THLB
+  inclusion rises with site class (TSA 08: L 10.7%, M 30.3%, H 40.5%; black
+  spruce 1.6-3.4%, aspen 16.8-74.9%), which explains why aspen leads the THLB
+  in TSAs 08/40/41 while black spruce leads the full VRI in 08/40.
 
 ## Legacy TSA 24 records
 

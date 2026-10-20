@@ -1,3 +1,18 @@
+# 2026-10-20 — Evidence standard + VRI/THLB species reconciliation
+
+- Amended `AGENTS.md`: new "Evidence standard — no hand-waving, ever" section
+  (reproduce before explaining; name denominators/units; falsifiable checks;
+  explicit unverified status; figures must be opened and checked).
+- Added `planning/species-composition-vri-vs-thlb.md`: reconciliation of the
+  full-VRI species composition (01a diagnostic population) with the model
+  landbase (THLB) composition — the source of the "aspen leads 3 of 5"
+  question, with the TSA 08 site-class inclusion detail and an explicit list of
+  unverified items (THLB raster not re-derived; no committed BCDC resolve
+  manifest).
+- Added `scripts/vri_vs_thlb_composition.py` +
+  `results/cross-tsa/species_composition_vri_vs_thlb.csv` and
+  `results/cross-tsa/thlb_inclusion_by_si.csv`.
+
 # 2026-10-20 - Species-composition figure correction
 
 - The five-unit species figure aggregated by raw stratum token, so mixed strata
