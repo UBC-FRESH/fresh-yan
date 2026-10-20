@@ -13,6 +13,7 @@ Status: **OK** (record exists) · **RUNNING** (record being generated) · **TODO
 | Fig. 3 — age structure, five units | `results/cross-tsa/figures/five_unit_age.pdf` | `scripts/five_tsa_figures.py` | OK |
 | Fig. 4 — species composition, five units | `results/cross-tsa/figures/five_unit_species.pdf` | `scripts/five_tsa_figures.py` | OK |
 | Species composition support (VRI vs THLB) | `results/cross-tsa/species_composition_vri_vs_thlb.csv` (+ `thlb_inclusion_by_si.csv`) | `scripts/vri_vs_thlb_composition.py` | OK |
+| THLB landbase rule (methods) | `results/cross-tsa/thlb_landbase_verification_tsa08.csv` (+ `thlb_threshold_sweep_tsa08.csv`) | `scripts/verify_thlb_landbase.py` | OK |
 | Table — units (THLB, dtypes, initial C, base, flip) | `results/cross-tsa/five_tsa_attributes.csv` + `cross_tsa_thresholds.csv` | `scripts/five_tsa_figures.py` + `scripts/cross_tsa_analysis.py` | OK |
 | Fig. 5 — base-scenario area/volume/stock (TSA 24) | `results/femic-tsa24/base_scenario/` | `fresh-yan base-scenario` (femic args) | OK |
 | Table — no-harvest stocks vs libCBM (TSA 24) | `results/femic-tsa24/no_harvest/no_harvest_pct_diff_summary.csv` (+ cbm/ws3) | `fresh-yan no-harvest` (femic args) | OK |

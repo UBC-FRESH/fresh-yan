@@ -79,6 +79,12 @@ python scripts/df_convention.py --out-dir results/cross-tsa
 # 11. VRI vs THLB species composition + THLB inclusion by site class
 python scripts/vri_vs_thlb_composition.py --instances-root <instances-root> \
   --out-dir results/cross-tsa
+
+# 12. THLB landbase rule verification (TSA 08; legacy THLB raster)
+python scripts/verify_thlb_landbase.py \
+  --instance <instances-root>/femic-tsa08-instance \
+  --raster <external-data>/misc.thlb.tif --out-dir results/cross-tsa \
+  --check-borderline
 ```
 
 Design and validation (verified 2026-10-13 by an independent audit, including
@@ -133,6 +139,10 @@ agreement to <=6e-8 tCO2 on ~1e9 tCO2):
   inclusion rises with site class (TSA 08: L 10.7%, M 30.3%, H 40.5%; black
   spruce 1.6-3.4%, aspen 16.8-74.9%), which explains why aspen leads the THLB
   in TSAs 08/40/41 while black spruce leads the full VRI in 08/40.
+- THLB landbase rule: mean THLB raster >= 50% reproduces TSA 08's 112,488
+  stands and 1,400,547.40 ha (recorded 1,400,549.45 ha; difference 2.05 ha);
+  >50% and the proportional interpretation are rejected; zero borderline flips
+  with the exact per-polygon mask rule.
 
 ## Legacy TSA 24 records
 
