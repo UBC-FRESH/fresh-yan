@@ -30,8 +30,9 @@ from fresh_yan.records import with_provenance
 TSAS = ["08", "16", "24", "40", "41"]
 SPECIES_NAMES = {
     "pl": "Lodgepole pine", "sx": "Hybrid spruce", "sw": "White spruce",
-    "sb": "Black spruce", "se": "Engelmann spruce", "bl": "Subalpine fir",
-    "at": "Trembling aspen", "fdi": "Douglas-fir",
+    "sb": "Black spruce", "se": "Engelmann spruce", "s": "Spruce spp.",
+    "bl": "Subalpine fir", "at": "Trembling aspen", "fdi": "Douglas-fir",
+    "ep": "Paper birch", "ac": "Black cottonwood",
 }
 
 
@@ -43,7 +44,8 @@ def read_are(path: str) -> pd.DataFrame:
             if len(p) >= 8 and p[0] == "*A":
                 rows.append((p[4], int(p[6]), float(p[7])))
     df = pd.DataFrame(rows, columns=["stratum", "age", "area"])
-    df["sp"] = df.stratum.str.split("_").str[-1].str.replace("pli", "pl", regex=False)
+    df["sp"] = df.stratum.str.split("_").str[-1]
+    df["sp"] = df.sp.str.split("+").str[0].str.replace("pli", "pl", regex=False)
     return df
 
 
@@ -71,30 +73,29 @@ def main(instances_root: str, out_dir: str) -> None:
     plt.close(fig)
 
     # --- age + species panels ---
-    fig_age, axes_age = plt.subplots(1, 5, figsize=(13, 2.8), sharey=False)
-    fig_sp, axes_sp = plt.subplots(1, 5, figsize=(13, 2.8), sharey=False)
+    fig_age, axes_age = plt.subplots(1, 5, figsize=(6.9, 2.2), sharey=False)
+    fig_sp, axes_sp = plt.subplots(1, 5, figsize=(6.9, 2.2), sharey=False)
     for ax_a, ax_s, s in zip(axes_age, axes_sp, TSAS, strict=True):
         df = read_are(os.path.join(
             instances_root, f"femic-tsa{s}-instance/output/ws3/tsa{s}.are"))
         total = df.area.sum()
         age = df.groupby("age").area.sum() / total * 100
         ax_a.bar((age.index * 10 + 5), age.values, width=8, color="0.3")
-        ax_a.set_title(f"TSA {s}", fontsize=9)
-        ax_a.set_xlabel("Age (yr)", fontsize=8)
-        ax_a.tick_params(labelsize=7)
+        ax_a.set_title(f"TSA {s}", fontsize=7)
+        ax_a.set_xlabel("Age (yr)", fontsize=6)
+        ax_a.tick_params(labelsize=5.5)
         sp = df.groupby("sp").area.sum() / total * 100
         sp = sp.sort_values(ascending=False).head(6)
-        ax_s.bar(range(len(sp)), sp.values, color="0.3")
-        ax_s.set_xticks(range(len(sp)))
-        ax_s.set_xticklabels([SPECIES_NAMES.get(k.split("+")[0], k) for k in sp.index],
-                             rotation=45, ha="right", fontsize=6.5)
-        ax_s.set_title(f"TSA {s}", fontsize=9)
-        ax_s.set_xlabel("Leading species", fontsize=8)
-        ax_s.tick_params(labelsize=7)
-    axes_age[0].set_ylabel("% of landbase", fontsize=8)
-    axes_sp[0].set_ylabel("% of landbase", fontsize=8)
-    fig_age.suptitle("Age structure of the five model instances", fontsize=10, y=1.02)
-    fig_sp.suptitle("Leading-species composition of the five model instances", fontsize=10, y=1.02)
+        ax_s.barh(range(len(sp)), sp.values, color="0.3")
+        ax_s.set_yticks(range(len(sp)))
+        ax_s.set_yticklabels([SPECIES_NAMES.get(k, k) for k in sp.index], fontsize=5.5)
+        ax_s.invert_yaxis()
+        ax_s.set_title(f"TSA {s}", fontsize=7)
+        ax_s.set_xlabel("% of landbase", fontsize=6)
+        ax_s.tick_params(labelsize=5.5)
+    axes_age[0].set_ylabel("% of landbase", fontsize=6)
+    fig_age.suptitle("Age structure of the five model instances", fontsize=8, y=1.02)
+    fig_sp.suptitle("Leading-species composition of the five model instances", fontsize=8, y=1.02)
     fig_age.savefig(os.path.join(out_dir, "five_unit_age.pdf"), bbox_inches="tight")
     fig_sp.savefig(os.path.join(out_dir, "five_unit_species.pdf"), bbox_inches="tight")
     plt.close("all")
