@@ -129,7 +129,7 @@ def main(instance: str, raster_path: str, out_dir: str, threshold: float = 50.0,
     species = dict(zip(
         au_table.au_id,
         au_table.stratum_code.str.split("_").str[-1].str.split("+").str[0]
-        .str.lower().str.replace("pli", "pl")))
+        .str.lower().str.replace("pli", "pl"), strict=False))
     sel_sp = gdf[selected].groupby(gdf.loc[selected, "theme2"].astype(str).map(species)).area.sum()
     are["sp"] = are.au.map(species)
     are_sp = are.groupby("sp").area_ha.sum()
