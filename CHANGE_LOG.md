@@ -1,3 +1,15 @@
+# 2026-10-20 - Species-composition figure correction
+
+- The five-unit species figure aggregated by raw stratum token, so mixed strata
+  ("at+sw") appeared as duplicate bars with the same label, unmapped BC codes
+  ("s", "ep", "ac") were shown as raw tokens, and the rotated right-aligned tick
+  labels bled under the leading bars (the figure read as aspen-led in every unit).
+- Now: area is aggregated by the leading species (first token of each mixed
+  stratum), the full code map covers S/EP/AC, and the panels use horizontal bars
+  authored at print width (6.9 in) with legible label sizes.
+- Underlying leading species by area: TSA 08 aspen 43%, TSA 16 hybrid spruce 38%,
+  TSA 24 hybrid spruce 41%, TSA 40 aspen 34%, TSA 41 aspen 35%.
+
 # 2026-10-14 — Femic structural robustness records
 
 - Parameterized `scripts/robustness_checks.py` for campaign models (`--tsa`,
