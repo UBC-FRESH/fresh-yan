@@ -52,15 +52,22 @@ page records the worklist and its resolution state.
   removed the empty template appendix; fixed the leftovers it exposed (empty subsection
   heading, two half-empty pages, a clipped equation-list line, garbled sentences,
   swapped Boisvenue/Kurz DOIs, map axis labels, figure title overlaps); enabled
-  hyperref hidelinks; corrected the harvested-landscape wording. Release v0.1.2
-  (doi:10.5281/zenodo.23358263) matches the manuscript's figures.
+  hyperref hidelinks; corrected the harvested-landscape wording. Release v0.1.3
+  (doi:10.5281/zenodo.23518081) matches the manuscript's figures.
+- **Evidence standard + landbase verification (2026-10-20).** AGENTS.md gained the
+  no-hand-waving evidence standard; the VRI vs THLB species reconciliation was
+  documented (`planning/species-composition-vri-vs-thlb.md`); the THLB landbase
+  rule was verified against the raster (mean THLB >= 50% reproduces TSA 08's
+  112,488 stands; records in `results/cross-tsa/`).
 - **Post-release correction (2026-10-14).** The no-harvest comparison sampled libCBM
   at the start of each period (t = 10(p-1)+1) while ws3 inventories are end-of-period
   (t = 10p); fixed to the end-of-period pairing, records regenerated, and the
   manuscript validation numbers updated (stock agreement now 0.2-5.4% period-mean;
   fluxes with no sign flips).
-- **P3 release - done (2026-10-14).** fresh-yan `v0.1.0` tagged + released,
-  archived on Zenodo (doi:10.5281/zenodo.23357325, cited in the data statement);
+- **P3 release - done (2026-10-14; releases through v0.1.3 for the figure
+  corrections).** fresh-yan `v0.1.0` tagged + released, archived on Zenodo
+  (current release v0.1.3, doi:10.5281/zenodo.23518081, cited in the data
+  statement);
   manuscript repo tagged `cjfr-submission-1`; derived records regenerated from a
   clean pin (values identical); CI green after landing pre-existing lint fixes;
   text-vs-record sweep re-run. Remaining: author read-through and submission.
